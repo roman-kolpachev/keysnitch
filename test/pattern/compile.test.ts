@@ -80,7 +80,7 @@ describe("behaviour of the built RegExp", () => {
   });
 
   it("escapes control and non-ASCII characters", () => {
-    assert.deepEqual(matches("\\t\\x00é", "\t\u0000é"), ["\t\u0000é"]);
+    assert.deepEqual(matches("\\t\\x00\u00e9", "\t\u0000\u00e9"), ["\t\u0000\u00e9"]);
     assert.deepEqual(matches("[\\x00-\\x1f]{2}", "a\u0001\u001fb"), ["\u0001\u001f"]);
   });
 
@@ -129,6 +129,12 @@ describe("emit", () => {
     assert.equal(emit(parse("a{2}")), "a{2}");
     assert.equal(emit(parse("a{2,5}?")), "a{2,5}?");
     assert.equal(emit(parse("a*")), "a{0,}");
+  });
+
+  it("wraps an alternation that sits directly in a sequence", () => {
+    // The parser always puts an alternation in a group; emit must not rely on it.
+    const tree = parse("a|b");
+    assert.equal(emit({ kind: "seq", items: [parse("x"), tree] }), "x(?:a|b)");
   });
 
   it("wraps a repeated sequence that is not a group", () => {

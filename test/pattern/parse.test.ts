@@ -126,7 +126,7 @@ describe("shorthand classes", () => {
     assert.equal(contains(d, 0x0661), false); // Arabic-Indic digit one
     assert.equal(contains(w, code("_")), true);
     assert.equal(contains(w, code("Z")), true);
-    assert.equal(contains(w, code("é")), false);
+    assert.equal(contains(w, code("\u00e9")), false);
   });
 
   it("\\s includes Unicode spaces such as the no-break space", () => {

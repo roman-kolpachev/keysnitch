@@ -120,12 +120,12 @@ describe("foldAsciiCase", () => {
   it("leaves digits, symbols and non-ASCII letters alone", () => {
     const set = charSet([
       [code("0"), code("9")],
-      [code("é"), code("é")],
+      [code("\u00e9"), code("\u00e9")],
       [code("K"), code("K")],
     ]);
     const folded = foldAsciiCase(set);
     assert.equal(contains(folded, code("k")), true);
-    assert.equal(contains(folded, code("É")), false);
+    assert.equal(contains(folded, code("\u00c9")), false);
     // The Kelvin sign is not added for "k" (no Unicode folding).
     assert.equal(contains(folded, 0x212a), false);
     assert.equal(size(folded), size(set) + 1);
