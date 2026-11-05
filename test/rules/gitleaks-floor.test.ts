@@ -17,7 +17,7 @@ const builtIn = new Set(rules.map((rule) => rule.id));
 
 /** A skipped gitleaks rule and the keysnitch rules that cover its ground instead (none: nothing to cover in text). */
 const REPLACED_BY: Readonly<Record<string, readonly string[]>> = {
-  "generic-api-key": [],
+  "generic-api-key": ["generic-secret-assignment", "generic-env-secret"],
   "pkcs12-file": [],
 };
 
