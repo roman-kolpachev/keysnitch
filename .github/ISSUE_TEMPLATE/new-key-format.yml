@@ -1,0 +1,29 @@
+name: New key format
+description: A credential that keysnitch should find but does not.
+labels: [rules]
+body:
+  - type: markdown
+    attributes:
+      value: Please never paste a real, live credential. Change some characters or build a fake one with the same shape.
+  - type: input
+    id: vendor
+    attributes:
+      label: Company or service
+      placeholder: Atlassian
+    validations:
+      required: true
+  - type: textarea
+    id: shape
+    attributes:
+      label: What the key looks like
+      description: Prefix, length, allowed characters, checksum if any.
+    validations:
+      required: true
+  - type: input
+    id: docs
+    attributes:
+      label: Link to the vendor's documentation of the format
+  - type: textarea
+    id: example
+    attributes:
+      label: A fake example with the same shape

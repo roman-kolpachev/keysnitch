@@ -1,0 +1,64 @@
+{
+  "name": "keysnitch",
+  "version": "0.1.0",
+  "description": "Find leaked API keys, tokens and passwords in any text. Zero dependencies, linear time rules, safe to run on untrusted input.",
+  "keywords": [
+    "secrets",
+    "secret-scanning",
+    "api-keys",
+    "credentials",
+    "leak-detection",
+    "security",
+    "redaction",
+    "gitleaks"
+  ],
+  "license": "MIT",
+  "author": "Roman Kolpachev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roman-kolpachev/keysnitch.git"
+  },
+  "bugs": "https://github.com/roman-kolpachev/keysnitch/issues",
+  "homepage": "https://github.com/roman-kolpachev/keysnitch#readme",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test --test-concurrency=2 \"test/**/*.test.ts\"",
+    "coverage": "node --test --test-concurrency=2 --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 \"test/**/*.test.ts\"",
+    "build": "node tools/clean.ts && tsc -p tsconfig.build.json",
+    "bench": "node bench/regex.ts",
+    "docs:rules": "node tools/rules-doc.ts",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run coverage && npm run build && npm pack --dry-run --ignore-scripts"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.19.2",
+    "eslint": "10.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0"
+  }
+}

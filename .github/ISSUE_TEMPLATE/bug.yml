@@ -1,0 +1,22 @@
+name: Bug
+description: Something else does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: For a security problem (a slow pattern, a leaked value, a crash), please use private reporting instead. See SECURITY.md.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Code to reproduce it
+      render: ts
+  - type: input
+    id: version
+    attributes:
+      label: keysnitch and Node versions

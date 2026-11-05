@@ -1,0 +1,14 @@
+{
+  // The published build: src only, no Node types (the library runs in any
+  // JavaScript runtime), declarations next to the code.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [],
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "sourceMap": false
+  },
+  "include": ["src"]
+}

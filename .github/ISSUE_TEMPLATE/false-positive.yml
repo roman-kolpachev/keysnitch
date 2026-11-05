@@ -1,0 +1,22 @@
+name: False positive
+description: keysnitch flags text that is not a credential.
+labels: [false-positive]
+body:
+  - type: input
+    id: rule
+    attributes:
+      label: Rule id
+      placeholder: generic-password
+    validations:
+      required: true
+  - type: textarea
+    id: text
+    attributes:
+      label: The text that was flagged
+      description: Remove anything private first.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it is not a credential
