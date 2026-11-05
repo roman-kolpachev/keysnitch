@@ -33,7 +33,10 @@ describe("defineRule", () => {
   it("uses the first group as the secret when the pattern has one", () => {
     // Like gitleaks: without a secretGroup, the first group that took part in the match.
     assert.equal(defineRule({ ...base, pattern: "key=(dmo_[a-z0-9]{8})" }).secretGroup, "first");
-    assert.equal(defineRule({ ...base, pattern: "key=(dmo_[a-z0-9]{8})", secretGroup: "first" }).secretGroup, "first");
+    assert.equal(
+      defineRule({ ...base, pattern: "key=(dmo_[a-z0-9]{8})", secretGroup: "first" }).secretGroup,
+      "first",
+    );
     assert.equal(defineRule({ ...base, pattern: "(k)ey=(dmo_[a-z0-9]{8})", secretGroup: 2 }).secretGroup, 2);
   });
 

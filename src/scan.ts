@@ -34,7 +34,10 @@ interface Candidate extends Finding {
  * The range of the secret in a match: a numbered group, or the first group
  * that took part. Exported for tests only (not part of the public API).
  */
-export function secretRange(match: RegExpExecArray, group: number | "first"): readonly [number, number] | undefined {
+export function secretRange(
+  match: RegExpExecArray,
+  group: number | "first",
+): readonly [number, number] | undefined {
   // Compiled patterns have the "d" flag; a match without indices has no range.
   const indices = match.indices ?? [];
   if (group !== "first") return indices[group];

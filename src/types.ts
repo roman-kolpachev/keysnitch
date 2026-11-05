@@ -23,7 +23,7 @@ export interface RuleSpec {
   readonly minEntropy?: number;
   /** Other names people search for, for example "Firebase" for a Google key. */
   readonly aliases?: readonly string[];
-  /** Patterns for values that are never secrets. A secret that matches one completely is skipped. */
+  /** Patterns for values that are never secrets. A secret that contains a match is skipped (use ^ and $ for whole values). */
   readonly allow?: readonly string[];
   /** A catch-all rule (a setting named "password", say). A specific rule wins over it on equal ranges. */
   readonly generic?: boolean;

@@ -243,8 +243,14 @@ describe("filters", () => {
     assert.deepEqual(find(`dmo_${"0".repeat(16)}`, [rule]), []);
   });
 
-  it("an allow pattern must match the whole secret", () => {
+  it("an allow pattern skips a secret that contains its match, like gitleaks", () => {
     const rule = defineRule({ ...demo, allow: ["0{4}"] });
+    assert.deepEqual(find(`dmo_0000${body.slice(4)}`, [rule]), []);
+    assert.deepEqual(find(`dmo_${body}`, [rule]), [`dmo_${body}`]);
+  });
+
+  it("an anchored allow pattern must match the whole secret", () => {
+    const rule = defineRule({ ...demo, allow: ["^dmo_0{4}$"] });
     assert.deepEqual(find(`dmo_0000${body.slice(4)}`, [rule]), [`dmo_0000${body.slice(4)}`]);
   });
 

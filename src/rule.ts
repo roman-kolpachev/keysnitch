@@ -10,7 +10,7 @@ export class RuleError extends Error {
 
 export interface CompiledRule {
   readonly pattern: CompiledPattern;
-  /** Whole-value allow patterns. */
+  /** Allow patterns, searched in the secret. */
   readonly allow: readonly CompiledPattern[];
 }
 
@@ -65,12 +65,14 @@ export function defineRule(spec: RuleSpec): Rule {
     throw new RuleError(spec.id, "minEntropy must be between 0 and 8");
   const pattern = compile(spec.pattern);
   const secretGroup = spec.secretGroup ?? (pattern.groups > 0 ? "first" : 0);
-  const known = secretGroup === "first" || (Number.isInteger(secretGroup) && secretGroup >= 0 && secretGroup <= pattern.groups);
+  const known =
+    secretGroup === "first" ||
+    (Number.isInteger(secretGroup) && secretGroup >= 0 && secretGroup <= pattern.groups);
   if (!known) {
     throw new RuleError(spec.id, "the secret group is not in the pattern");
   }
   const allowSources = spec.allow ?? [];
-  const allow = allowSources.map((source) => compile(`^(?:${source})$`));
+  const allow = allowSources.map((source) => compile(source));
 
   const rule: Rule = Object.freeze({
     id: spec.id,
