@@ -7,9 +7,9 @@
 //   rules out the classic exponential cases like (a+)+ and (a|aa)*;
 // - a lookahead holds only single characters or the end of text;
 // - a rule that can match empty text is refused;
-// - a cost estimate multiplies the ranges of neighbouring variable parts
-//   that can trade characters with each other, and refuses a rule above
-//   the limit; disjoint neighbours only add up;
+// - a cost estimate adds the steps of every part, plus, for each chain of
+//   neighbours that can trade characters, the product of the number of
+//   lengths each can take; a rule above the limit is refused;
 // - the check reports every problem, not just the first one.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
@@ -116,25 +116,40 @@ describe("empty matches", () => {
 });
 
 describe("cost", () => {
-  it("is small for fixed text and for disjoint neighbours", () => {
+  it("is the number of steps for fixed text and for disjoint neighbours", () => {
     assert.equal(cost("abc"), 3);
     // [a-z]{1,10} then a digit: the letters cannot be given to the digit.
     assert.equal(cost("[a-z]{1,10}[0-9]"), 11);
   });
 
-  it("multiplies neighbours that can trade characters", () => {
+  it("adds the product of possible lengths of neighbours that can trade characters", () => {
     // Both parts take letters, so a run of letters can be split 10 x 10 ways.
-    assert.equal(cost("[a-z]{1,10}[a-z]{1,10}"), 100);
+    assert.equal(cost("[a-z]{1,10}[a-z]{1,10}"), 20 + 10 * 10);
   });
 
   it("carries the product through an optional part in the middle", () => {
     // The dash is optional, so the two letter runs still meet.
-    assert.equal(cost("[a-z]{0,5}-?[a-z]{0,5}"), 6 * 2 * 6);
+    assert.equal(cost("[a-z]{0,5}-?[a-z]{0,5}"), 14 + 6 * 2 * 6);
+  });
+
+  it("stops the chain at an optional part when the next part cannot share characters with it", () => {
+    // "=" can go to the first part or the second, but digits belong only to the third.
+    assert.equal(cost("[=a]{1,4}=?[0-9]{1,9}"), 15 + 4 * 2);
+  });
+
+  it("counts an unbounded part as MAX_REPEAT lengths", () => {
+    assert.equal(cost("[a-z]{2,}[a-z]"), MAX_REPEAT - 1 + 1 + (MAX_REPEAT + 1) * 1);
   });
 
   it("looks through a word boundary into an alternation for shared characters", () => {
     // [a-z]{1,3} can end with "x", and the alternation can start with "x".
-    assert.equal(cost("[a-z]{1,3}\\b(?:x|9)"), 3 * 1 * 2);
+    assert.equal(cost("[a-z]{1,3}\\b(?:x|9)"), 6 + 3 * 1 * 1);
+  });
+
+  it("counts an alternation by its possible lengths in a chain, not by its size", () => {
+    // Four keywords of four different lengths can end in four places.
+    const keywords = "(?:jfrog|artifactory|bintray|xray)";
+    assert.equal(cost(`${keywords}[a-z]{0,9}`), 27 + 10 + 8 * 10);
   });
 
   it("adds the options of an alternation", () => {

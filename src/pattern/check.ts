@@ -11,7 +11,7 @@
 // 2. a repeat that can run more than once has a body of fixed length;
 // 3. a lookahead holds only single characters or the end of text;
 // 4. a rule never matches empty text;
-// 5. the cost estimate stays at or below MAX_COST.
+// 5. the cost estimate (see sequenceCost) stays at or below MAX_COST.
 
 import type { Node } from "./ast.ts";
 import { intersects, union, type CharSet } from "./charset.ts";
@@ -145,27 +145,48 @@ function cost(node: Node): number {
   }
 }
 
+/** How many different lengths a match of the node can have. */
+function ways(node: Node): number {
+  const min = minLength(node);
+  return (maxLength(node) ?? min + MAX_REPEAT) - min + 1;
+}
+
 /**
- * Neighbours multiply when the earlier one has a variable length and can
- * end with a character the rest can start with: the engine may then try
- * every split between them. An optional part keeps such a chain going.
+ * The steps of every item, plus one product per chain of neighbours that
+ * can trade characters: the earlier one has a variable length and can end
+ * with a character the rest can start with, so the engine may try every
+ * split between them. The product counts the possible lengths of each
+ * item in the chain. An optional item keeps a chain going.
  */
 function sequenceCost(items: readonly Node[]): number {
   let total = 0;
-  let chain = 0;
-  let linked = false;
+  let product = 1;
+  let inChain = false;
+  // The characters the chain so far can end with.
+  let chainLast: CharSet = [];
   items.forEach((item, index) => {
-    const itemCost = cost(item);
-    chain = linked ? chain * itemCost : itemCost;
-    const trades = isVariable(item) && intersects(last(item), firstOfRest(items, index + 1));
-    const nextLinked = trades || (linked && isNullable(item));
-    if (!nextLinked) {
-      total += chain;
-      chain = 0;
+    total += cost(item);
+    if (inChain) product *= ways(item);
+    const next = firstOfRest(items, index + 1);
+    const trades = isVariable(item) && intersects(last(item), next);
+    // An optional item lets earlier items meet later ones, but only on
+    // characters both can take.
+    const carries = inChain && isNullable(item) && intersects(chainLast, next);
+    if ((trades || carries) && !inChain) {
+      product = ways(item);
+      inChain = true;
+      chainLast = last(item);
+    } else if (trades || carries) {
+      chainLast = union(chainLast, last(item));
+    } else if (inChain) {
+      total += product;
+      product = 1;
+      inChain = false;
+      chainLast = [];
     }
-    linked = nextLinked;
   });
-  return total + chain;
+  // The last item has nothing after it, so every chain is closed by now.
+  return total;
 }
 
 function isLookaheadAtom(node: Node): boolean {
