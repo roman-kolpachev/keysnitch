@@ -7,6 +7,27 @@ import type { RuleSpec } from "../types.ts";
 
 const KEY_END = String.raw`(?![A-Za-z0-9_-])`;
 
+// Names of settings that hold a secret. The name must end right before the
+// operator, so "passport=" or "tokenUrl=" do not count.
+const SETTING_NAMES = String.raw`(?:pass(?:word|wd)?|pwd|secret|token|(?:api|app|secret|private|access|client|consumer|encryption|signing|master|license|auth)[_.-]?key|apikey|client[_.-]?secret|app[_.-]?secret|consumer[_.-]?secret|auth|credentials?)`;
+const SETTING_KEYWORDS = ["pass", "pwd", "secret", "token", "key", "auth", "credential"];
+const SETTING_ALIASES = [".env", "environment variable", "app key", "app secret", "client secret"];
+const SETTING_ROTATE =
+  "Change the password or revoke the key, then keep it in a secrets manager instead of the text.";
+const SETTING_ALLOW = [
+  // Types in code: password: string, (secret: string) =>, token?: string | null.
+  // A whole word only: "stringent2024" is still a password.
+  String.raw`^(?:string|number|boolean|bool|int|integer|str|text|varchar|char|bytes|object|any|unknown|optional|required|secret|password|token|undefined|none)\b`,
+  // References: token: this.token, password = config.db.password.
+  String.raw`^(?:this|self|props|state|config|env|process|options|opts|args|params|data|req|request|ctx|context|settings|os|sys|vars|secrets)\.`,
+  // Calls: getPassword(), getSecret(name), os.getenv( before a quote,
+  // text.slice(start before a comma. A password may hold brackets, so text
+  // after the closing bracket ("abc(1)xyz") is not a call.
+  String.raw`^[A-Za-z_$][A-Za-z0-9_$.]{0,100}\([^)]{0,200}\)?$`,
+  // An address is an endpoint, not a secret (a password in it is found by url-credentials).
+  String.raw`^[A-Za-z][A-Za-z0-9+.-]{1,20}://`,
+];
+
 const ATLASSIAN = ["Jira", "Confluence", "Bitbucket", "Trello"];
 const GOOGLE = ["GCP", "Google Cloud", "Firebase", "Gemini"];
 const MICROSOFT = ["Azure", "Entra", "Teams", "Office 365"];
@@ -193,20 +214,28 @@ export const keysnitchRules: readonly RuleSpec[] = [
     vendor: "Generic",
     label: "Secret in a setting (password, token, key)",
     severity: "medium",
-    keywords: ["pass", "pwd", "secret", "token", "key", "auth", "credential"],
-    pattern: String.raw`(?i)(?:pass(?:word|wd)?|pwd|secret|token|(?:api|app|secret|private|access|client|consumer|encryption|signing|master|license|auth)[_.-]?key|apikey|client[_.-]?secret|app[_.-]?secret|consumer[_.-]?secret|auth|credentials?)["']?\s{0,40}(?::=|=>|=|:)\s{0,40}["'\x60]?([^\s"'\x60,;]{6,200})`,
-    allow: [
-      // Types in code: password: string.
-      String.raw`^(?:string|number|boolean|bool|int|integer|str|text|varchar|char|bytes|object|any|unknown|optional|required|secret|password|token|undefined|none)$`,
-      // References: token: this.token, password = config.db.password.
-      String.raw`^(?:this|self|props|state|config|env|process|options|opts|args|params|data|req|request|ctx|context|settings|os|sys|vars|secrets)\.`,
-      // Calls: password = getPassword(), os.getenv(...). A password may hold
-      // brackets, so only a name right before "(" counts as code.
-      String.raw`^[A-Za-z_$][A-Za-z0-9_$.]{0,100}\(`,
-    ],
+    keywords: SETTING_KEYWORDS,
+    pattern: String.raw`(?i)${SETTING_NAMES}["']?\s{0,40}(?::=|=>|=)\s{0,40}["'\x60]?([^\s"'\x60,;]{6,200})`,
+    allow: SETTING_ALLOW,
     generic: true,
-    aliases: [".env", "environment variable", "app key", "app secret", "client secret"],
-    rotate: "Change the password or revoke the key, then keep it in a secrets manager instead of the text.",
+    aliases: SETTING_ALIASES,
+    rotate: SETTING_ROTATE,
+  },
+  {
+    // "Password: ..." is also how people write prose, so after a colon the
+    // value must look random: a digit, a symbol, a capital letter inside,
+    // or 20 characters or more. "Credentials: regenerate" is not reported.
+    id: "generic-secret-colon",
+    vendor: "Generic",
+    label: "Secret after a name and a colon (YAML, JSON, notes)",
+    severity: "medium",
+    keywords: SETTING_KEYWORDS,
+    pattern: String.raw`(?i)${SETTING_NAMES}["']?\s{0,40}:(?!=)\s{0,40}["'\x60]?([^\s"'\x60,;]{6,200})`,
+    allow: SETTING_ALLOW,
+    validate: looksRandom,
+    generic: true,
+    aliases: SETTING_ALIASES,
+    rotate: SETTING_ROTATE,
   },
   {
     id: "generic-env-secret",
@@ -253,6 +282,28 @@ export const keysnitchRules: readonly RuleSpec[] = [
     rotate: "Change the registry password or revoke the token, and use --password-stdin.",
   },
 ];
+
+// Symbols that words, brand names and addresses use too.
+const SOFT_SYMBOLS = ".-_/:";
+
+/**
+ * True when a value does not read like a word, a brand name or an address:
+ * 20 characters or more, or letters together with a digit or with a symbol
+ * other than . - _ / and :.
+ */
+export function looksRandom(value: string): boolean {
+  if (value.length >= 20) return true;
+  let letter = false;
+  let digit = false;
+  let symbol = false;
+  for (let index = 0; index < value.length; index += 1) {
+    const c = value.charCodeAt(index);
+    if ((c >= 0x61 && c <= 0x7a) || (c >= 0x41 && c <= 0x5a)) letter = true;
+    else if (c >= 0x30 && c <= 0x39) digit = true;
+    else if (!SOFT_SYMBOLS.includes(value.charAt(index))) symbol = true;
+  }
+  return letter && (digit || symbol);
+}
 
 const BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

@@ -203,9 +203,33 @@ describe("secrets in settings", () => {
     assertFound("export DB_PASSWORD=s3cr3tPassw0rd\n", "s3cr3tPassw0rd");
   });
 
+  it("after a colon, finds values that look random or are long, as YAML and JSON write them", () => {
+    assertFound("password: hunter2\n", "hunter2");
+    assertFound("token: Q8w2Er4Ty6Ui\n", "Q8w2Er4Ty6Ui");
+    assertFound('{"password": "abc(1)xyz"}', "abc(1)xyz");
+    assertFound("password: correcthorsebatterystaple\n", "correcthorsebatterystaple");
+    assertFound("secret: s3cr3t-value\n", "s3cr3t-value");
+  });
+
+  it("after a colon, does not report plain words in prose", () => {
+    for (const text of [
+      "Security credentials: deactivate, then delete the key.",
+      "Token: regenerate it in the console.",
+      "Password: required",
+      "Secret: Unknown",
+      "API key: rotated yesterday",
+      "Auth: OAuth",
+    ]) {
+      assertNothing(text);
+    }
+  });
+
   it("does not report types, code, references and look-alike names", () => {
     for (const text of [
       "password: string;",
+      "readonly validate?: (secret: string) => boolean;",
+      "token?: string | null",
+      "const secret = text.slice(start, end);",
       "token: this.token,",
       "const password = getPassword();",
       "password = os.getenv('DB_PASSWORD')",
