@@ -89,12 +89,16 @@ function matcherMatches(text: string, matcher: CustomMatcher): Candidate[] {
   return found;
 }
 
-/** Wider first; on a tie a specific rule before a generic one; then by id. */
+/**
+ * Which rule names a joined range: a specific rule before a generic one
+ * (the label says what the credential is), then the wider match, then by id.
+ * The range itself is always the union of all candidates.
+ */
 function better(a: Candidate, b: Candidate): Candidate {
+  if (a.generic !== b.generic) return a.generic ? b : a;
   const widthA = a.end - a.start;
   const widthB = b.end - b.start;
   if (widthA !== widthB) return widthA > widthB ? a : b;
-  if (a.generic !== b.generic) return a.generic ? b : a;
   return a.ruleId <= b.ruleId ? a : b;
 }
 

@@ -323,12 +323,18 @@ describe("overlaps", () => {
     assert.deepEqual(values(text, findings), [`dmo_${body}`]);
   });
 
-  it("keeps the wider range when a generic match is longer, so nothing stays readable", () => {
+  it("keeps the wider range of a longer generic match, so nothing stays readable, but names the specific rule", () => {
     const text = `token=dmo_${body}/x`;
     const findings = scan(text, { rules: [demo, wide] }).findings;
     assert.equal(findings.length, 1);
-    assert.equal(findings[0]?.ruleId, "wide");
+    assert.equal(findings[0]?.ruleId, "demo-token");
     assert.deepEqual(values(text, findings), [`dmo_${body}/x`]);
+    assert.deepEqual(scan(text, { rules: [wide, demo] }).findings, findings);
+  });
+
+  it("names a generic rule when no specific rule is in the joined range", () => {
+    const text = `token=${body}/x`;
+    assert.equal(scan(text, { rules: [demo, wide] }).findings[0]?.ruleId, "wide");
   });
 
   it("joins partly overlapping findings into one range", () => {
