@@ -30,13 +30,29 @@ interface Candidate extends Finding {
   readonly generic: boolean;
 }
 
+/**
+ * The range of the secret in a match: a numbered group, or the first group
+ * that took part. Exported for tests only (not part of the public API).
+ */
+export function secretRange(match: RegExpExecArray, group: number | "first"): readonly [number, number] | undefined {
+  // Compiled patterns have the "d" flag; a match without indices has no range.
+  const indices = match.indices ?? [];
+  if (group !== "first") return indices[group];
+  for (let index = 1; index < indices.length; index += 1) {
+    const range = indices[index];
+    if (range !== undefined) return range;
+  }
+  // No group took part: the whole match is the secret, as in gitleaks.
+  return indices[0];
+}
+
 function ruleMatches(text: string, rule: Rule): Candidate[] {
   const compiled = compiledRule(rule);
   if (compiled === undefined)
     throw new TypeError(`rule ${JSON.stringify(rule.id)} was not made by defineRule`);
   const found: Candidate[] = [];
   for (const match of text.matchAll(compiled.pattern.regex)) {
-    const range = match.indices?.[rule.secretGroup];
+    const range = secretRange(match, rule.secretGroup);
     if (range === undefined) continue;
     const [start, end] = range;
     if (start === end) continue;

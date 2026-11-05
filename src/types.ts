@@ -13,8 +13,12 @@ export interface RuleSpec {
   readonly keywords: readonly string[];
   /** The pattern in RE2 syntax. It must pass the safety check. */
   readonly pattern: string;
-  /** Which capture group holds the secret. Default: 1 if the pattern has groups, else the whole match. */
-  readonly secretGroup?: number;
+  /**
+   * Which capture group holds the secret: a number (0 is the whole match) or
+   * "first", the first group that took part in the match. Default: "first"
+   * if the pattern has groups, else the whole match.
+   */
+  readonly secretGroup?: number | "first";
   /** Minimum Shannon entropy (bits per character) of the secret. Default 0. */
   readonly minEntropy?: number;
   /** Other names people search for, for example "Firebase" for a Google key. */
@@ -38,7 +42,7 @@ export interface Rule {
   readonly severity: Severity;
   readonly keywords: readonly string[];
   readonly pattern: string;
-  readonly secretGroup: number;
+  readonly secretGroup: number | "first";
   readonly minEntropy: number;
   readonly aliases: readonly string[];
   readonly allow: readonly string[];

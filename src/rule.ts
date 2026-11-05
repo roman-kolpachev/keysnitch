@@ -64,8 +64,9 @@ export function defineRule(spec: RuleSpec): Rule {
   if (!(minEntropy >= 0 && minEntropy <= 8))
     throw new RuleError(spec.id, "minEntropy must be between 0 and 8");
   const pattern = compile(spec.pattern);
-  const secretGroup = spec.secretGroup ?? (pattern.groups > 0 ? 1 : 0);
-  if (!Number.isInteger(secretGroup) || secretGroup < 0 || secretGroup > pattern.groups) {
+  const secretGroup = spec.secretGroup ?? (pattern.groups > 0 ? "first" : 0);
+  const known = secretGroup === "first" || (Number.isInteger(secretGroup) && secretGroup >= 0 && secretGroup <= pattern.groups);
+  if (!known) {
     throw new RuleError(spec.id, "the secret group is not in the pattern");
   }
   const allowSources = spec.allow ?? [];

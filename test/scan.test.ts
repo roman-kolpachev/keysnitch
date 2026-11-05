@@ -20,7 +20,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { defineRule } from "../src/rule.ts";
-import { scan, type Finding } from "../src/scan.ts";
+import { scan, secretRange, type Finding } from "../src/scan.ts";
 
 const body = "q7Lm2Xp9Rt4Vz8Kc"; // 16 mixed characters, built here, not a real key
 const demo = defineRule({
@@ -148,6 +148,37 @@ describe("rules and groups", () => {
       secretGroup: 1,
     });
     assert.deepEqual(find(`dmo_${body} key=abcd1234`, [rule]), ["abcd1234"]);
+  });
+
+  it("takes the first group that took part when the rule does not name one", () => {
+    const rule = defineRule({
+      id: "two-shapes",
+      vendor: "Demo",
+      label: "Demo",
+      severity: "high",
+      keywords: [],
+      pattern: "(?:key=([a-z0-9]{8})|tok=([A-Z]{8}))",
+    });
+    assert.deepEqual(find("key=abcd1234 tok=ABCDEFGH", [rule]), ["abcd1234", "ABCDEFGH"]);
+  });
+
+  it("finds no range in a match made without indices", () => {
+    const match = /a(b)/u.exec("ab");
+    assert.ok(match !== null);
+    assert.equal(secretRange(match, 1), undefined);
+    assert.equal(secretRange(match, "first"), undefined);
+  });
+
+  it("takes the whole match when no group took part", () => {
+    const rule = defineRule({
+      id: "group-or-not",
+      vendor: "Demo",
+      label: "Demo",
+      severity: "high",
+      keywords: [],
+      pattern: "(?:key=([a-z0-9]{8})|tok_[A-Z]{8})",
+    });
+    assert.deepEqual(find("tok_ABCDEFGH", [rule]), ["tok_ABCDEFGH"]);
   });
 
   it("skips a match whose secret group is empty", () => {
