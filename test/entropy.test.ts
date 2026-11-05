@@ -17,6 +17,6 @@ describe("entropy", () => {
   });
 
   it("counts UTF-16 code units", () => {
-    assert.equal(entropy("éé"), 0);
+    assert.equal(entropy("\u00e9\u00e9"), 0);
   });
 });

@@ -40,7 +40,7 @@ describe("isEncodedUserAndSecret", () => {
 
   it("refuses control and non-ASCII bytes", () => {
     assert.equal(isEncodedUserAndSecret(encode("alice:wonder\u0001land")), false);
-    assert.equal(isEncodedUserAndSecret(encode("alice:wonderéland")), false);
+    assert.equal(isEncodedUserAndSecret(encode("alice:wonder\u00e9land")), false);
   });
 
   it("refuses values that are not Base64", () => {
