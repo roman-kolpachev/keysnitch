@@ -43,7 +43,7 @@ export const OVERRIDES: Readonly<Record<string, Override>> = {
     reason: "also finds a key-... value without the word mailgun next to it",
   },
   "huggingface-access-token": {
-    pattern: String.raw`\b(hf_[A-Za-z0-9]{34,40})(?![A-Za-z0-9])`,
+    pattern: String.raw`\b(hf_[A-Za-z0-9]{34,100})(?![A-Za-z0-9])`,
     reason: "Hugging Face tokens hold digits too; gitleaks takes letters only",
   },
   "doppler-api-token": {

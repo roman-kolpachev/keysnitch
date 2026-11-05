@@ -6,7 +6,9 @@ import { readFileSync } from "node:fs";
 import { defineRule } from "../../src/rule.ts";
 import type { RuleSpec } from "../../src/types.ts";
 import { boundRepeats, stripLeadingContext } from "./convert.ts";
+import { ALSO } from "./also.ts";
 import { OVERRIDES, SKIPPED } from "./overrides.ts";
+import { ROTATE } from "./rotate.ts";
 import { parseGitleaksToml, type GitleaksRule } from "./toml.ts";
 import { ALIASES, labelOf, severityOf, vendorOf } from "./vendors.ts";
 
@@ -28,18 +30,24 @@ function convert(rule: GitleaksRule): RuleSpec | string {
   if (skipped !== undefined) return skipped;
   if (rule.regex === undefined) return "no pattern (a file path rule)";
   const override = OVERRIDES[rule.id];
-  const pattern = override?.pattern ?? boundRepeats(stripLeadingContext(rule.regex));
+  const base = override?.pattern ?? boundRepeats(stripLeadingContext(rule.regex));
+  const also = ALSO[rule.id];
+  // The wider shape goes first: at one position an alternation takes the first branch that matches.
+  const pattern = also === undefined ? base : `(?:${also.pattern})|(?:${base})`;
   const { vendor } = vendorOf(rule.id);
   const aliases = ALIASES[vendor] ?? [];
   const allow = override?.allow ?? allowOf(rule);
   const secretGroup = override?.secretGroup ?? rule.secretGroup;
+  const keywords = override?.keywords ?? rule.keywords.map((keyword) => keyword.toLowerCase());
+  const rotate = ROTATE[rule.id];
   return {
     id: rule.id,
     vendor,
     label: labelOf(rule.id),
     severity: severityOf(rule.id),
-    keywords: override?.keywords ?? rule.keywords.map((keyword) => keyword.toLowerCase()),
+    keywords: [...new Set([...keywords, ...(also?.keywords ?? [])])],
     pattern,
+    ...(rotate === undefined ? {} : { rotate }),
     ...(secretGroup === undefined ? {} : { secretGroup }),
     ...(rule.entropy === undefined ? {} : { minEntropy: rule.entropy }),
     ...(aliases.length === 0 ? {} : { aliases }),

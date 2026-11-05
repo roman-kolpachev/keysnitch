@@ -77,7 +77,7 @@ export const keysnitchRules: readonly RuleSpec[] = [
     label: "Groq API key",
     severity: "high",
     keywords: ["gsk_"],
-    pattern: String.raw`\bgsk_[A-Za-z0-9]{48,60}(?![A-Za-z0-9])`,
+    pattern: String.raw`\bgsk_[A-Za-z0-9]{48,300}(?![A-Za-z0-9])`,
     rotate: "Groq Console, API Keys: delete the key.",
   },
   {
@@ -86,7 +86,7 @@ export const keysnitchRules: readonly RuleSpec[] = [
     label: "xAI API key",
     severity: "high",
     keywords: ["xai-"],
-    pattern: String.raw`\bxai-[A-Za-z0-9]{70,90}(?![A-Za-z0-9])`,
+    pattern: String.raw`\bxai-[A-Za-z0-9]{70,200}(?![A-Za-z0-9])`,
     aliases: ["Grok"],
     rotate: "xAI Console, API Keys: delete the key.",
   },
@@ -107,7 +107,7 @@ export const keysnitchRules: readonly RuleSpec[] = [
     label: "Docker Hub access token",
     severity: "high",
     keywords: ["dckr_"],
-    pattern: String.raw`\bdckr_(?:pat|oat)_[A-Za-z0-9_-]{27,40}${KEY_END}`,
+    pattern: String.raw`\bdckr_(?:pat|oat)_[A-Za-z0-9_-]{27,200}${KEY_END}`,
     aliases: ["Docker Hub"],
     rotate: "Docker Hub, Account settings, Personal access tokens: delete the token.",
   },
@@ -117,7 +117,7 @@ export const keysnitchRules: readonly RuleSpec[] = [
     label: "Figma personal access token",
     severity: "high",
     keywords: ["figd_"],
-    pattern: String.raw`\bfigd_[A-Za-z0-9_-]{40,50}${KEY_END}`,
+    pattern: String.raw`\bfigd_[A-Za-z0-9_-]{40,200}${KEY_END}`,
     rotate: "Figma, Settings, Security, Personal access tokens: revoke it.",
   },
   {
@@ -171,7 +171,7 @@ export const keysnitchRules: readonly RuleSpec[] = [
     label: "Discord webhook URL",
     severity: "high",
     keywords: ["discord"],
-    pattern: String.raw`https://(?:ptb\.|canary\.)?discord(?:app)?\.com/api/webhooks/[0-9]{17,20}/[A-Za-z0-9_-]{60,70}${KEY_END}`,
+    pattern: String.raw`https://(?:ptb\.|canary\.)?discord(?:app)?\.com/api/webhooks/[0-9]{1,30}/[A-Za-z0-9_-]{60,100}${KEY_END}`,
     rotate: "Discord, Server settings, Integrations, Webhooks: delete it.",
   },
 
@@ -194,10 +194,15 @@ export const keysnitchRules: readonly RuleSpec[] = [
     label: "Secret in a setting (password, token, key)",
     severity: "medium",
     keywords: ["pass", "pwd", "secret", "token", "key", "auth", "credential"],
-    pattern: String.raw`(?i)(?:pass(?:word|wd)?|pwd|secret|token|(?:api|app|secret|private|access|client|consumer|encryption|signing|master|license|auth)[_.-]?key|apikey|client[_.-]?secret|app[_.-]?secret|consumer[_.-]?secret|auth|credentials?)["']?[ \t]{0,5}(?::=|=>|=|:)[ \t]{0,5}["'\x60]?([^\s"'\x60<>{}()\[\],;]{6,200})(?![^\s"'\x60<>{}\[\],;])`,
+    pattern: String.raw`(?i)(?:pass(?:word|wd)?|pwd|secret|token|(?:api|app|secret|private|access|client|consumer|encryption|signing|master|license|auth)[_.-]?key|apikey|client[_.-]?secret|app[_.-]?secret|consumer[_.-]?secret|auth|credentials?)["']?\s{0,40}(?::=|=>|=|:)\s{0,40}["'\x60]?([^\s"'\x60,;]{6,200})`,
     allow: [
+      // Types in code: password: string.
       String.raw`^(?:string|number|boolean|bool|int|integer|str|text|varchar|char|bytes|object|any|unknown|optional|required|secret|password|token|undefined|none)$`,
+      // References: token: this.token, password = config.db.password.
       String.raw`^(?:this|self|props|state|config|env|process|options|opts|args|params|data|req|request|ctx|context|settings|os|sys|vars|secrets)\.`,
+      // Calls: password = getPassword(), os.getenv(...). A password may hold
+      // brackets, so only a name right before "(" counts as code.
+      String.raw`^[A-Za-z_$][A-Za-z0-9_$.]{0,100}\(`,
     ],
     generic: true,
     aliases: [".env", "environment variable", "app key", "app secret", "client secret"],
