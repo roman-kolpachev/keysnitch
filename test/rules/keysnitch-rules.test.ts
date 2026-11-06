@@ -223,6 +223,10 @@ describe("shapes secretlint finds", () => {
     assertFound(`key ${sendgrid} end`, sendgrid, "sendgrid-api-token");
     const gitlab = `glpat-${chars(URLSAFE, 120, 53)}`;
     assertFound(`token ${gitlab} end`, gitlab, "gitlab-pat");
+    const linear = `lin_api_${chars(ALNUM, 32, 54)}`;
+    assertFound(`key ${linear} end`, linear, "linear-api-key");
+    const onePassword = `ops_eyJ${chars(`${ALNUM}+/`, 150, 55)}fQ==`;
+    assertFound(`token ${onePassword} end`, onePassword, "1password-service-account-token");
   });
 });
 

@@ -11,6 +11,8 @@ const WHOLE = [
   "\\{\\{[^{}]{1,200}\\}\\}",
   "%[A-Za-z_][A-Za-z0-9_]{0,200}%",
   "<[^<>]{1,200}>",
+  // The same in HTML text, as Confluence stores it: &lt;password&gt;.
+  "&lt;[^&<>]{1,200}&gt;",
   "(?i)true|false|null|none|nil|undefined",
 ].map((source) => compile(`^(?:${source})$`));
 

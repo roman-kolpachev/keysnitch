@@ -282,6 +282,7 @@ describe("filters", () => {
       "{{secret_value}}",
       "%SECRET_VALUE%",
       "<your-secret-here>",
+      "&lt;password&gt;",
       "your_secret_value",
       "xxxxxxxxxxxx",
       "XXXXXXXXXXXXXXXX",

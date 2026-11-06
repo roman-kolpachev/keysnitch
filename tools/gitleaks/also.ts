@@ -17,6 +17,14 @@ export const ALSO: Readonly<Record<string, AlsoShape>> = {
     keywords: ["akia", "asia", "agpa", "aida", "aroa", "aipa", "anpa", "anva", "a3t"],
   },
   // Shapes the secretlint recommended preset finds and gitleaks does not.
+  "linear-api-key": {
+    pattern: String.raw`\blin_api_[a-zA-Z0-9_]{32,128}(?![a-zA-Z0-9_])`,
+    keywords: ["lin_api_"],
+  },
+  "1password-service-account-token": {
+    pattern: String.raw`\bops_ey[A-Za-z0-9+/=]{100,1280}fQ={0,2}(?![A-Za-z0-9+/=])`,
+    keywords: ["ops_ey"],
+  },
   "github-app-token": {
     pattern: String.raw`\bghs_[0-9]{1,20}_[A-Za-z0-9_-]{1,1000}\.[A-Za-z0-9_-]{1,4096}\.[A-Za-z0-9_-]{1,1000}(?![A-Za-z0-9_-])`,
     keywords: ["ghs_"],
