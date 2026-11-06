@@ -34,6 +34,12 @@ function files(directory: string, extensions: readonly string[]): string[] {
   const walk = (path: string): void => {
     for (const name of readdirSync(join(root, path))) {
       const child = join(path, name);
+      // Tools' folders (.git, .stryker-tmp), installed and built files are not the project's text.
+      if (
+        name.startsWith(".") ||
+        ["node_modules", "dist", "coverage", "reports", "third_party"].includes(name)
+      )
+        continue;
       if (statSync(join(root, child)).isDirectory()) walk(child);
       else if (extensions.some((extension) => name.endsWith(extension))) out.push(child);
     }

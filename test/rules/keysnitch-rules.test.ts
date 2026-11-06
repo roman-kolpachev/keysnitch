@@ -173,6 +173,59 @@ describe("formats found without a context word", () => {
   });
 });
 
+describe("shapes secretlint finds", () => {
+  it("finds an AWS secret access key by its setting name, and an account id", () => {
+    const secret = chars(`${ALNUM}/+`, 40, 31);
+    for (const name of [
+      "AWS_SECRET_ACCESS_KEY",
+      "aws_secret_access_key",
+      "SecretAccessKey",
+      "secret_access_key",
+    ]) {
+      assertFound(`${name} = ${secret}\n`, secret, "aws-secret-access-key");
+    }
+    assertFound('"aws_account_id": "1234-5678-9012"', "1234-5678-9012", "aws-account-id");
+    assertFound("AWS_ACCOUNT_ID=123456789012\n", "123456789012", "aws-account-id");
+  });
+
+  it("does not report the documented AWS example secret", () => {
+    assertNothing("aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\n");
+  });
+
+  it("finds AWS ids with the IAM prefixes", () => {
+    for (const prefix of ["AKIA", "ASIA", "AGPA", "AIDA", "AROA", "AIPA", "ANPA", "ANVA"]) {
+      const id = `${prefix}${chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567", 16, prefix.length + 40)}`;
+      assertFound(`id ${id} here`, id, "aws-access-token");
+    }
+  });
+
+  it("finds Tailscale, Vercel, Cloudflare and Vault recovery tokens", () => {
+    const tailscale = `tskey-auth-${chars(ALNUM, 12, 41)}-${chars(ALNUM, 30, 42)}`;
+    assertFound(`key: ${tailscale}\n`, tailscale, "tailscale-key");
+    for (const prefix of ["vcp", "vci", "vca", "vcr", "vck"]) {
+      const token = `${prefix}_${chars(ALNUM, 40, 43)}`;
+      assertFound(`token ${token} end`, token, "vercel-token");
+    }
+    for (const prefix of ["cfk", "cfut", "cfat"]) {
+      const token = `${prefix}_${chars(ALNUM, 40, 44)}${chars(HEX, 8, 45)}`;
+      assertFound(`cf ${token} end`, token, "cloudflare-api-token");
+    }
+    const recovery = `hvr.${chars(URLSAFE, 100, 46)}`;
+    assertFound(`vault ${recovery} end`, recovery, "vault-service-token");
+  });
+
+  it("finds a GitHub app installation token, wider Shopify, SendGrid and GitLab tokens", () => {
+    const installation = `ghs_123456_${chars(URLSAFE, 40, 47)}.${chars(URLSAFE, 120, 48)}.${chars(URLSAFE, 43, 49)}`;
+    assertFound(`token ${installation} end`, installation, "github-app-token");
+    const shopify = `shpat_${chars(ALNUM, 40, 50)}`;
+    assertFound(`shopify ${shopify} end`, shopify, "shopify-access-token");
+    const sendgrid = `SG.${chars(URLSAFE, 22, 51)}.${chars(URLSAFE, 50, 52)}`;
+    assertFound(`key ${sendgrid} end`, sendgrid, "sendgrid-api-token");
+    const gitlab = `glpat-${chars(URLSAFE, 120, 53)}`;
+    assertFound(`token ${gitlab} end`, gitlab, "gitlab-pat");
+  });
+});
+
 describe("passwords in URLs", () => {
   it("finds the password of a database URL, not the user or host", () => {
     for (const scheme of ["postgres", "postgresql", "mysql", "mongodb+srv", "redis", "amqps", "https"]) {

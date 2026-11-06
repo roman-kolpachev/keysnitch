@@ -121,7 +121,56 @@ export const keysnitchRules: readonly RuleSpec[] = [
     rotate: "Replicate, Account, API tokens: delete the token.",
   },
 
+  // AWS. gitleaks finds key ids (AKIA...); the secret key has no prefix,
+  // so it is found by the setting name next to it, like secretlint does.
+  {
+    id: "aws-secret-access-key",
+    vendor: "AWS",
+    label: "AWS secret access key",
+    severity: "high",
+    keywords: ["secret"],
+    pattern: String.raw`(?:AWS|aws|Aws)?_?(?:SECRET|secret|Secret)_?(?:ACCESS|access|Access)_?(?:KEY|key|Key)["']?\s{0,20}(?::|=>|=)\s{0,20}["']?([A-Za-z0-9/+=]{40})(?![A-Za-z0-9/+=])`,
+    aliases: ["Amazon", "Amazon Web Services", "IAM"],
+    rotate: "AWS IAM console, Users, Security credentials: deactivate, then delete the access key.",
+  },
+  {
+    id: "aws-account-id",
+    vendor: "AWS",
+    label: "AWS account ID",
+    severity: "low",
+    keywords: ["account"],
+    pattern: String.raw`(?:AWS|aws|Aws)?_?(?:ACCOUNT|account|Account)_?(?:ID|id|Id)?["']?\s{0,20}(?::|=>|=)\s{0,20}["']?([0-9]{4}-?[0-9]{4}-?[0-9]{4})(?![0-9])`,
+    aliases: ["Amazon", "Amazon Web Services"],
+  },
+
   // Developer platforms.
+  {
+    id: "tailscale-key",
+    vendor: "Tailscale",
+    label: "Tailscale key",
+    severity: "high",
+    keywords: ["tskey-"],
+    pattern: String.raw`\btskey-[a-z]{2,20}-[0-9A-Za-z_]{8,40}-[0-9A-Za-z_]{16,60}(?![0-9A-Za-z_])`,
+    rotate: "Tailscale admin console, Settings, Keys: revoke the key.",
+  },
+  {
+    id: "vercel-token",
+    vendor: "Vercel",
+    label: "Vercel token",
+    severity: "high",
+    keywords: ["vcp_", "vci_", "vca_", "vcr_", "vck_"],
+    pattern: String.raw`\b(?:vcp|vci|vca|vcr|vck)_[A-Za-z0-9]{20,60}(?![A-Za-z0-9])`,
+    rotate: "Vercel, Account settings, Tokens: delete the token.",
+  },
+  {
+    id: "cloudflare-api-token",
+    vendor: "Cloudflare",
+    label: "Cloudflare API token or key (new format)",
+    severity: "high",
+    keywords: ["cfk_", "cfut_", "cfat_"],
+    pattern: String.raw`\b(?:cfk|cfut|cfat)_[A-Za-z0-9]{40}[0-9a-f]{8}(?![A-Za-z0-9])`,
+    rotate: "Cloudflare dashboard, My Profile or Account, API Tokens: roll or delete the token.",
+  },
   {
     id: "docker-hub-access-token",
     vendor: "Docker",

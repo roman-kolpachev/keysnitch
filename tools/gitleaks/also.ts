@@ -13,8 +13,21 @@ export interface AlsoShape {
 
 export const ALSO: Readonly<Record<string, AlsoShape>> = {
   "aws-access-token": {
-    pattern: String.raw`\b(?:AKIA|ASIA)[0-9A-Z]{16}(?![0-9A-Za-z])`,
-    keywords: ["akia", "asia"],
+    pattern: String.raw`\b(?:AKIA|ASIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|A3T[A-Z0-9])[0-9A-Z]{16}(?![0-9A-Za-z])`,
+    keywords: ["akia", "asia", "agpa", "aida", "aroa", "aipa", "anpa", "anva", "a3t"],
+  },
+  // Shapes the secretlint recommended preset finds and gitleaks does not.
+  "github-app-token": {
+    pattern: String.raw`\bghs_[0-9]{1,20}_[A-Za-z0-9_-]{1,1000}\.[A-Za-z0-9_-]{1,4096}\.[A-Za-z0-9_-]{1,1000}(?![A-Za-z0-9_-])`,
+    keywords: ["ghs_"],
+  },
+  "shopify-access-token": {
+    pattern: String.raw`\bshp(?:at|ca|pa|ss)_[a-zA-Z0-9]{32,64}(?![a-zA-Z0-9])`,
+    keywords: ["shpat_", "shpca_", "shppa_", "shpss_"],
+  },
+  "sendgrid-api-token": {
+    pattern: String.raw`\bSG\.[A-Za-z0-9_-]{16,128}\.[A-Za-z0-9_-]{16,128}(?![A-Za-z0-9_-])`,
+    keywords: ["sg."],
   },
   "github-fine-grained-pat": {
     pattern: String.raw`\bgithub_pat_[A-Za-z0-9_]{60,255}(?![A-Za-z0-9_])`,
@@ -36,14 +49,14 @@ export const ALSO: Readonly<Record<string, AlsoShape>> = {
     pattern: String.raw`https://hooks\.slack\.com/services/[A-Za-z0-9/]{20,200}(?![A-Za-z0-9/])`,
     keywords: ["hooks.slack.com"],
   },
-  "gitlab-pat": { pattern: String.raw`\bglpat-[A-Za-z0-9_-]{20,100}(?![A-Za-z0-9_-])`, keywords: ["glpat-"] },
+  "gitlab-pat": { pattern: String.raw`\bglpat-[A-Za-z0-9_-]{20,128}(?![A-Za-z0-9_-])`, keywords: ["glpat-"] },
   "perplexity-api-key": {
     pattern: String.raw`\bpplx-[A-Za-z0-9]{40,100}(?![A-Za-z0-9])`,
     keywords: ["pplx-"],
   },
   "vault-service-token": {
-    pattern: String.raw`\bhv[sb]\.[A-Za-z0-9_-]{24,300}(?![A-Za-z0-9_-])`,
-    keywords: ["hvs.", "hvb."],
+    pattern: String.raw`\bhv[sbr]\.[A-Za-z0-9_-]{24,300}(?![A-Za-z0-9_-])`,
+    keywords: ["hvs.", "hvb.", "hvr."],
   },
   "sentry-org-token": {
     pattern: String.raw`\bsntrys_[A-Za-z0-9_=+/.-]{40,400}(?![A-Za-z0-9_=+/.-])`,

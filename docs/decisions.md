@@ -20,7 +20,7 @@ Measured with `node bench/regex.ts` (Node 24.22.1, about 1 MB of text, re2js 2.9
 | keyword rule (`(?:app_?key\|secret\|token)\s*[:=]...`, case-insensitive) |          0.8 ms | 155 ms |
 | no prefix (three segments with dots)                                     |         20.5 ms | 0.1 ms |
 
-re2js wins when a pattern has a rare literal in the middle, and loses badly on case-insensitive keyword rules, which are a large part of the rule set. A full scan with all 243 rules takes about 115 ms per MB of text. Other reasons:
+re2js wins when a pattern has a rare literal in the middle, and loses badly on case-insensitive keyword rules, which are a large part of the rule set. A full scan with all 248 rules takes about 115 ms per MB of text. Other reasons:
 
 - RE2 has no lookahead, which keysnitch uses to end a key without taking the next character (D-6).
 - re2js would be the only runtime dependency of a security tool.
