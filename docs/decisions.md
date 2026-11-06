@@ -31,7 +31,7 @@ Where patterns cannot be checked (patterns typed by users), use RE2 through a cu
 
 A security tool should be easy to audit. keysnitch has no runtime dependencies (a test fails if one is added) and six dev dependencies: TypeScript, ESLint with typescript-eslint, Prettier and the Node types. Tests run on Node's own `node:test` with its coverage gate at 100 % of lines, branches and functions of `src/`. npm runs no install scripts (`.npmrc`).
 
-TypeScript is 6.0.3, not 7: typescript-eslint supports TypeScript up to 6.0 today.
+TypeScript is 6.0.3, not 7: typescript-eslint supports TypeScript up to 6.0 today. `@types/node` stays on 24, the oldest Node in `engines`, so the code cannot use an API that Node 24 lacks. Dependabot ignores both majors until that changes.
 
 ## D-4. gitleaks is the floor
 
