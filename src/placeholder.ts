@@ -14,9 +14,15 @@ const WHOLE = [
   "(?i)true|false|null|none|nil|undefined",
 ].map((source) => compile(`^(?:${source})$`));
 
-const START = ["(?i)xxx", "process\\.env\\.", "os\\.environ", "import\\.meta\\.env\\."].map((source) =>
-  compile(`^(?:${source})`),
-);
+// An ellipsis ("token=...") stands for a value left out.
+const START = [
+  "(?i)xxx",
+  "process\\.env\\.",
+  "os\\.environ",
+  "import\\.meta\\.env\\.",
+  "\\.\\.\\.",
+  "\\x{2026}",
+].map((source) => compile(`^(?:${source})`));
 
 const ANYWHERE = compile("(?i)your[_-]|example|changeme|change[_-]me|placeholder|redacted|replace[_-]?me");
 

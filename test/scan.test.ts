@@ -293,6 +293,9 @@ describe("filters", () => {
       "process.env.SECRET",
       "os.environ[SECRET]",
       "REDACTED_VALUE",
+      "...&next=1",
+      "...abc123xyz",
+      "\u2026abc123xyz",
     ]) {
       assert.deepEqual(find(`secret = ${value}`, [loose]), [], value);
     }
