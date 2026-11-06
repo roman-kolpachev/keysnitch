@@ -1,6 +1,6 @@
 # Conventions
 
-Only rules a tool cannot check live here. Everything else is in `tsconfig.json`, `eslint.config.mjs`, Prettier and `test/repo.test.ts`.
+Only rules a tool cannot check live here. Everything else is in `tsconfig.json`, `.oxlintrc.json`, Prettier and `test/repo.test.ts`.
 
 ## Tests
 
@@ -12,7 +12,7 @@ Only rules a tool cannot check live here. Everything else is in `tsconfig.json`,
 
 ## Code
 
-- No type assertions (`as const` only), no `!`, no `any`, no `@ts-` comments, no `eslint-disable`. Untrusted data is `unknown` and is narrowed by a guard.
+- No type assertions (`as const` only), no `!`, no `any`, no `@ts-` comments, no `oxlint-disable` or `eslint-disable`. Untrusted data is `unknown` and is narrowed by a guard.
 - Pure functions. No state between calls. Frozen exports.
 - A comment says why, not what.
 - Names say what a thing is, in plain English.

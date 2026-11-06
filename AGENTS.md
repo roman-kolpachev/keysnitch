@@ -11,9 +11,10 @@ keysnitch finds leaked credentials in text. It is a security tool, so its own mi
 
 ## What must stay true
 
-- **No runtime dependencies.** `test/repo.test.ts` fails if one appears. Dev dependencies are exact versions, at least two weeks old when added.
+- **No runtime dependencies.** `test/repo.test.ts` fails if one appears.
+- **Rules that keep the code safe are tests, not lint settings** (`test/repo.test.ts`): no RegExp outside the compiler, no `any`, no `as`, no `!`, no comment that turns a check off. The linter (oxlint, `.oxlintrc.json`) is a second net. Dev dependencies are exact versions, at least two weeks old when added.
 - **`src/` runs anywhere:** no `node:` imports, no `console`, no `process`, no network, no `eval`.
-- **Every RegExp is built in `src/pattern/compile.ts`** after the safety check. ESLint refuses regex literals and `new RegExp` elsewhere in `src/`. Do not weaken `src/pattern/check.ts` to let a rule in: change the rule.
+- **Every RegExp is built in `src/pattern/compile.ts`** after the safety check. `test/repo.test.ts` refuses regex literals and `RegExp` elsewhere in `src/`. Do not weaken `src/pattern/check.ts` to let a rule in: change the rule.
 - **A finding never holds the value.** Errors never hold the value or the scanned text.
 - **Findings never eat the text around a key** (no closing quote, no `;`). The contract tests check every built-in rule.
 - **gitleaks is the floor.** Every rule id of `third_party/gitleaks/gitleaks.toml` is a built-in rule or skipped with a reason (`test/rules/gitleaks-floor.test.ts`). `src/rules/gitleaks.ts` is generated: change `tools/gitleaks/*` and run `node tools/gitleaks/import.ts`.

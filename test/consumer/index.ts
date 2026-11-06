@@ -1,6 +1,6 @@
 // Compiled by npm run check:consumer against the built package, the way a
-// project with older module settings (CommonJS, node10) and a modern one
-// (NodeNext) would use it.
+// project that resolves modules like a bundler (Vite, esbuild, Forge) and a
+// Node project (NodeNext) would use it.
 import { defineRule, findRules, mask, rules, scan, type Finding, type Rule } from "../../dist/index.js";
 
 const found: readonly Finding[] = scan("text").findings;
