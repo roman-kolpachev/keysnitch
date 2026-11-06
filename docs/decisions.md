@@ -74,3 +74,16 @@ What we checked before the switch:
 - **What stays independent of the linter.** The rules that keep the code safe (no RegExp outside the compiler, no `any`, `as`, `!` or comments that turn checks off) are repository tests, so a linter bug or a missing rule cannot let them through.
 
 The cost: oxlint's type-aware part is younger than typescript-eslint. A native binary is harder to read than JavaScript; provenance ties it to its source build. Also, TypeScript 7 no longer knows `moduleResolution: node10`, so the consumer check now covers `bundler` and `nodenext`; the package keeps the top-level `types` field for older setups.
+
+## D-12. Write access for CodeQL and for signing a release, nowhere else
+
+OpenSSF Scorecard and buyers' security reviews look for static analysis, fuzzing and signed releases. Two of them need a token that can write:
+
+- **CodeQL** (`.github/workflows/codeql.yml`) stores its findings in the repository's code scanning alerts: `security-events: write`, in its one job.
+- **Signed releases**: the `sign` job of `release.yml` fetches the tarball just published to npm (the exact bytes users install), signs it with a Sigstore build provenance attestation and attaches the tarball and `.sigstore.json` to the GitHub release: `contents: write`, `id-token: write`, `attestations: write`, in that job only, after `publish` has finished.
+
+Every workflow still starts with `permissions: contents: read`, and `test/repo.test.ts` lists the writes each file may ask for, so a new one fails the tests. Expressions reach scripts only through `env`, never inside a `run` line, so a tag name cannot become a command.
+
+Fuzzing is property-based testing with fast-check (`test/property.test.ts`), which Scorecard counts for TypeScript and which needs no write access.
+
+The cost: two places where a token can write, each limited to one job and one kind of write. The npm package itself keeps its provenance from the `publish` job, unchanged.

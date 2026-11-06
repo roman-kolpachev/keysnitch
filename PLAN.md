@@ -28,6 +28,7 @@ Config used: `testRunner: command`, `coverageAnalysis: off`, `concurrency: 2`, `
 3. **A value right after `==`.** `token==<value>` is read as the operator `==` and then the value, so if a password itself starts with `=`, that one character stays readable. The value may not start with `=`, which keeps the pattern linear at 2,048 characters. Default: keep. Alternative: none found that stays linear.
 4. **A line of one word after a wrapped Base64 JWT.** A wrapped token whose last line is exactly full (76 or 64 characters) can take a next line made only of Base64 characters, such as `Thanks`, as its last line. Default: keep (needs both the exact length and such a line). Alternative: a matcher written in code that reads the line widths.
 5. **Setting values longer than 2,048 characters** (4,096 for the other setting rules) are not reported, so that no part of them is shown as covered. Default: keep. Alternative: a higher limit, which the slow-input contract test refuses for the `=` rule today.
+6. **Write access for CodeQL and release signing** (D-12). Scorecard counts SAST and signed release assets; both need a token that can write, which the repository had avoided. Default: allow exactly those two writes, each in one job, listed in `test/repo.test.ts`. Alternative: keep read-only everywhere and accept 0 on SAST and Signed-Releases.
 
 ## Ideas found while building
 
