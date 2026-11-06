@@ -61,7 +61,7 @@ No real-looking key is stored in the repository. Examples are built from parts, 
 
 ## D-10. MIT license
 
-Same as gitleaks and secretlint, whose patterns keysnitch adapts. The owner may change it before the repository goes public.
+Same as gitleaks and secretlint, whose patterns keysnitch adapts. MIT is the license most npm users and their legal teams accept without a question. Apache-2.0 adds a patent grant, which matters little for a library of patterns.
 
 ## D-11. oxlint instead of ESLint, TypeScript 7
 

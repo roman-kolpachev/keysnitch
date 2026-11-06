@@ -100,6 +100,38 @@ describe("dependencies", () => {
   });
 });
 
+describe("GitHub workflows", () => {
+  const workflows = files(".github", [".yml"])
+    .filter((path) => path.replaceAll("\\", "/").includes("workflows/"))
+    .map((path) => ({ path, text: read(path) }));
+
+  it("has the CI and the release workflow", () => {
+    assert.deepEqual(workflows.map(({ path }) => path.replaceAll("\\", "/")).sort(), [
+      ".github/workflows/ci.yml",
+      ".github/workflows/release.yml",
+    ]);
+  });
+
+  it("pins every action to a full commit hash", () => {
+    for (const { path, text } of workflows) {
+      for (const [, action] of text.matchAll(/^\s*-?\s*uses:\s*(\S+)/gmu)) {
+        assert.match(String(action), /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/u, `${path}: ${String(action)}`);
+      }
+    }
+  });
+
+  it("gives the token read access only, and id-token only to publishing", () => {
+    for (const { path, text } of workflows) {
+      assert.match(text, /^permissions:\n {2}contents: read$/mu, path);
+      assert.ok(!/write/u.test(text.replace(/id-token: write/gu, "")), `${path} asks for write access`);
+    }
+    const release = workflows.find(({ path }) => path.endsWith("release.yml"));
+    assert.ok(release !== undefined);
+    assert.match(release.text, /npm publish --provenance --access public --ignore-scripts/u);
+    assert.match(release.text, /npm run check/u);
+  });
+});
+
 describe("TypeScript settings", () => {
   it("keeps every strict option on", () => {
     const text = read("tsconfig.json").replace(/^\s*\/\/.*$/gmu, "");

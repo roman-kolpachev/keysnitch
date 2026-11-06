@@ -4,10 +4,6 @@ All notable changes to this project are written here. The format follows [Keep a
 
 ## [Unreleased]
 
-### Changed
-
-- The package is built with TypeScript 7 and linted with oxlint. The API and the rules are the same.
-
 ## [0.1.0] - 2026-11-06
 
 First version.
@@ -20,3 +16,6 @@ First version.
 - `defineRule()` for your own rules, custom matchers for patterns run by another engine.
 - `findRules()` and `vendors()` to find rules by company, name or alias.
 - `mask()` to show a value safely.
+
+[Unreleased]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/roman-kolpachev/keysnitch/releases/tag/v0.1.0

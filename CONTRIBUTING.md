@@ -59,6 +59,10 @@ Open an issue with the "False positive" template. Remove anything private from t
 
 One topic per pull request. Fill in the template. Add a line to `CHANGELOG.md` under "Unreleased".
 
+## Releases
+
+The maintainer publishes a version by publishing a GitHub release (tag `vX.Y.Z`) after moving the "Unreleased" lines of `CHANGELOG.md` under the new version. The Release workflow runs `npm run check` and publishes to npm with provenance, so anyone can check which commit a version was built from (`npm audit signatures`).
+
 ## Security issues
 
 Please do not open an issue for a vulnerability. See [SECURITY.md](SECURITY.md).

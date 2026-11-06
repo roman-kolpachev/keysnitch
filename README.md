@@ -1,5 +1,9 @@
 # keysnitch
 
+[![npm](https://img.shields.io/npm/v/keysnitch)](https://www.npmjs.com/package/keysnitch)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Dependencies: 0](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
+
 Find leaked API keys, tokens and passwords in any text.
 
 keysnitch reads a string and tells you where the credentials are: an Atlassian API token in a Jira comment, a Google API key in a URL, a database password in a pasted `.env` file. It has 250 built-in rules from 129 companies and projects, including every rule of gitleaks v8.30.1 that applies to text.
