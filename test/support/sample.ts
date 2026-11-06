@@ -2,8 +2,8 @@
 // tree. Tests use it so the repository never holds real-looking keys:
 // every example is made when the test runs.
 
-import type { Node } from "../../src/pattern/ast.ts";
-import type { CharSet } from "../../src/pattern/charset.ts";
+import type { Node } from "#src/pattern/ast.ts";
+import type { CharSet } from "#src/pattern/charset.ts";
 
 /** A small seeded random generator (mulberry32), so failures repeat. */
 export function random(seed: number): () => number {

@@ -13,11 +13,11 @@
 // - documentation placeholders for its value are not reported.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { rules } from "../../src/rules/index.ts";
-import { compiledRule } from "../../src/rule.ts";
-import { scan } from "../../src/scan.ts";
+import { rules } from "#src/rules/index.ts";
+import { compiledRule } from "#src/rule.ts";
+import { scan } from "#src/scan.ts";
 import { characters, random, sample } from "../support/sample.ts";
-import type { Rule } from "../../src/types.ts";
+import type { Rule } from "#src/types.ts";
 
 const SLOW_INPUT = 100_000;
 const BUDGET_MS = 400;

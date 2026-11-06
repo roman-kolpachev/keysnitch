@@ -11,8 +11,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parse } from "../../src/pattern/parse.ts";
-import { scan } from "../../src/scan.ts";
+import { parse } from "#src/pattern/parse.ts";
+import { scan } from "#src/scan.ts";
 import { boundRepeats } from "../../tools/gitleaks/convert.ts";
 import { random, sample } from "../support/sample.ts";
 

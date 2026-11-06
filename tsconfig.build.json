@@ -5,6 +5,8 @@
   "compilerOptions": {
     "types": [],
     "noEmit": false,
+    // src imports each other by relative paths; the build writes them as .js.
+    "rewriteRelativeImportExtensions": true,
     "outDir": "dist",
     "rootDir": "src",
     "declaration": true,

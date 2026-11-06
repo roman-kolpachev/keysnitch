@@ -15,9 +15,9 @@
 //   to repeat, a {m,n} with m > n, numbers that are too large.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parse, PatternError } from "../../src/pattern/parse.ts";
-import type { Node } from "../../src/pattern/ast.ts";
-import { contains, type CharSet } from "../../src/pattern/charset.ts";
+import { parse, PatternError } from "#src/pattern/parse.ts";
+import type { Node } from "#src/pattern/ast.ts";
+import { contains, type CharSet } from "#src/pattern/charset.ts";
 
 const code = (c: string): number => c.charCodeAt(0);
 

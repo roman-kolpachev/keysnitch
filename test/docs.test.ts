@@ -7,8 +7,8 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { rulesDoc } from "../tools/rules-doc.ts";
-import { rules } from "../src/rules/index.ts";
-import { GITLEAKS_VERSION } from "../src/rules/gitleaks.ts";
+import { rules } from "#src/rules/index.ts";
+import { GITLEAKS_VERSION } from "#src/rules/gitleaks.ts";
 
 const read = (path: string): string => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 

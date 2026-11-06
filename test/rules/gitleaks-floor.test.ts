@@ -8,8 +8,8 @@
 // - the version in the generated file is the vendored version.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { rules } from "../../src/rules/index.ts";
-import { GITLEAKS_VERSION, gitleaksRules, gitleaksSkipped } from "../../src/rules/gitleaks.ts";
+import { rules } from "#src/rules/index.ts";
+import { GITLEAKS_VERSION, gitleaksRules, gitleaksSkipped } from "#src/rules/gitleaks.ts";
 import { buildGitleaksRules } from "../../tools/gitleaks/build.ts";
 
 const build = buildGitleaksRules();

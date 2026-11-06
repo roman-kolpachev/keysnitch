@@ -20,7 +20,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { scan } from "../src/scan.ts";
+import { scan } from "#src/scan.ts";
 import { readCode } from "./support/code.ts";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/u, "$1");
@@ -194,6 +194,27 @@ describe("source text", () => {
         assert.ok(!/(?<!\*\s*)\bas\s+(?!const\b)/u.test(line), `${where} has a type assertion; use a guard`);
         assert.ok(!/[\w)\]]!(?!=)/u.test(line), `${where} has a non-null assertion; check for undefined`);
       });
+    }
+  });
+
+  it("imports src through #src/ outside src, and relatively inside it", () => {
+    assert.deepEqual(packageJson["imports"], { "#src/*": "./src/*" });
+    for (const path of code.filter((file) => file.endsWith(".ts"))) {
+      const inSrc = path.replaceAll("\\", "/").startsWith("src/");
+      const text = readCode(read(path)).code;
+      const source = read(path);
+      for (const match of text.matchAll(/\bfrom\s+"|\bimport\s*\(\s*"/gu)) {
+        const start = match.index + match[0].length;
+        const specifier = source.slice(start, source.indexOf('"', start));
+        if (inSrc) {
+          assert.ok(
+            !specifier.startsWith("#"),
+            `${path} imports ${specifier}; inside src use a relative path`,
+          );
+        } else {
+          assert.ok(!/^(?:\.\.\/)+src\//u.test(specifier), `${path} imports ${specifier}; use #src/`);
+        }
+      }
     }
   });
 

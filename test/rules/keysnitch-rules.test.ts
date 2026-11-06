@@ -14,7 +14,7 @@
 // Values are built from parts here; none is a real credential.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { scan } from "../../src/scan.ts";
+import { scan } from "#src/scan.ts";
 import { random } from "../support/sample.ts";
 
 const ALNUM = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

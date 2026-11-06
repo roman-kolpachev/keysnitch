@@ -7,8 +7,8 @@
 // - vendors() counts rules per company, sorted by name.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { defineRule } from "../src/rule.ts";
-import { findRules, vendors } from "../src/search.ts";
+import { defineRule } from "#src/rule.ts";
+import { findRules, vendors } from "#src/search.ts";
 
 const make = (id: string, vendor: string, label: string, aliases: string[] = []) =>
   defineRule({ id, vendor, label, aliases, severity: "high", keywords: [], pattern: "x[0-9]{4}" });

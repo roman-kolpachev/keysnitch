@@ -7,7 +7,7 @@
 // - the stars do not reveal the length.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { mask } from "../src/mask.ts";
+import { mask } from "#src/mask.ts";
 
 describe("mask", () => {
   it("shows 4 + 4 characters of a long value", () => {

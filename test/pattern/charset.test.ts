@@ -17,7 +17,7 @@ import {
   size,
   union,
   type CharSet,
-} from "../../src/pattern/charset.ts";
+} from "#src/pattern/charset.ts";
 
 const code = (c: string): number => c.charCodeAt(0);
 
