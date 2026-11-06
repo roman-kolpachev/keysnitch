@@ -19,8 +19,8 @@
 //   nothing is kept between calls.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { defineRule, RuleError } from "../src/rule.ts";
-import { scan, secretRange, type Finding } from "../src/scan.ts";
+import { defineRule, RuleError } from "#src/rule.ts";
+import { scan, secretRange, type Finding } from "#src/scan.ts";
 
 const body = "q7Lm2Xp9Rt4Vz8Kc"; // 16 mixed characters, built here, not a real key
 const demo = defineRule({

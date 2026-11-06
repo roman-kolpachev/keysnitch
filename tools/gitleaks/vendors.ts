@@ -3,7 +3,7 @@
 // matching slug wins. A label is the company name plus the rest of the id
 // in plain words, unless LABELS names it.
 
-import type { Severity } from "../../src/types.ts";
+import type { Severity } from "#src/types.ts";
 
 export const VENDORS: readonly (readonly [slug: string, vendor: string])[] = [
   ["1password", "1Password"],

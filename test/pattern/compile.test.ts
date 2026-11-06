@@ -8,9 +8,9 @@
 // - the RegExp has no shared state: two scans at once get the same answers.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { compile, UnsafePatternError } from "../../src/pattern/compile.ts";
-import { emit } from "../../src/pattern/emit.ts";
-import { parse, PatternError } from "../../src/pattern/parse.ts";
+import { compile, UnsafePatternError } from "#src/pattern/compile.ts";
+import { emit } from "#src/pattern/emit.ts";
+import { parse, PatternError } from "#src/pattern/parse.ts";
 
 function matches(pattern: string, text: string): string[] {
   return [...text.matchAll(compile(pattern).regex)].map((match) => match[0]);

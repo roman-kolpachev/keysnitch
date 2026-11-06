@@ -5,7 +5,7 @@
 // re2js is not a dependency of keysnitch. To include it in the run:
 //   npm install --no-save re2js@2.9.1 && node bench/regex.ts
 
-import { scan } from "../src/index.ts";
+import { scan } from "#src/index.ts";
 
 // One GitHub-shaped token at the end, built here (no key-shaped text in the repository).
 const fakeToken = ["ghp", "_", "Qw3rTy7Ui9Op1As2Df4Gh6", "Jk8Lz0XcVbNm12"].join("");

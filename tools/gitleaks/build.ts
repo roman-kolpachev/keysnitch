@@ -3,8 +3,8 @@
 // which check that the written file is up to date.
 
 import { readFileSync } from "node:fs";
-import { defineRule } from "../../src/rule.ts";
-import type { RuleSpec } from "../../src/types.ts";
+import { defineRule } from "#src/rule.ts";
+import type { RuleSpec } from "#src/types.ts";
 import { boundRepeats, stripLeadingContext } from "./convert.ts";
 import { ALSO } from "./also.ts";
 import { OVERRIDES, SKIPPED } from "./overrides.ts";

@@ -2,7 +2,7 @@
 // is a minor version; removing or renaming one is a major version.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import * as keysnitch from "../src/index.ts";
+import * as keysnitch from "#src/index.ts";
 
 describe("public API", () => {
   it("exports exactly these names", () => {

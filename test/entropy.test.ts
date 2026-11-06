@@ -2,7 +2,7 @@
 // minimum entropy to skip values like "aaaaaaaa".
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { entropy } from "../src/entropy.ts";
+import { entropy } from "#src/entropy.ts";
 
 describe("entropy", () => {
   it("is 0 for empty text and for one repeated character", () => {

@@ -26,12 +26,11 @@
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
     "allowImportingTsExtensions": true,
-    "rewriteRelativeImportExtensions": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": false,
     "noEmit": true
   },
-  "include": ["src", "test", "bench", "tools", "eslint.config.mjs"],
+  "include": ["src", "test", "bench", "tools"],
   // Compiled on its own against the build (npm run check:consumer).
   "exclude": ["test/consumer"]
 }

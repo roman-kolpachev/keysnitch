@@ -13,8 +13,8 @@
 // - the check reports every problem, not just the first one.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { check, MAX_COST, MAX_REPEAT } from "../../src/pattern/check.ts";
-import { parse } from "../../src/pattern/parse.ts";
+import { check, MAX_COST, MAX_REPEAT } from "#src/pattern/check.ts";
+import { parse } from "#src/pattern/parse.ts";
 
 const problems = (pattern: string): readonly string[] => check(parse(pattern)).problems;
 const cost = (pattern: string): number => check(parse(pattern)).cost;

@@ -3,9 +3,9 @@
 // up to date.
 
 import { writeFileSync } from "node:fs";
-import { rules } from "../src/rules/index.ts";
-import { GITLEAKS_VERSION, gitleaksSkipped } from "../src/rules/gitleaks.ts";
-import { vendors } from "../src/search.ts";
+import { rules } from "#src/rules/index.ts";
+import { GITLEAKS_VERSION, gitleaksSkipped } from "#src/rules/gitleaks.ts";
+import { vendors } from "#src/search.ts";
 
 function cell(text: string): string {
   return text.replaceAll("|", "\\|");

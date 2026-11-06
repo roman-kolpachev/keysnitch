@@ -8,7 +8,7 @@
 //   (id.atlassian.com, npmjs.com) are not.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { looksRandom } from "../../src/rules/keysnitch.ts";
+import { looksRandom } from "#src/rules/keysnitch.ts";
 
 describe("looksRandom", () => {
   it("accepts long values", () => {

@@ -9,8 +9,8 @@
 // - the result is frozen, so a caller cannot change a rule later.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { defineRule, RuleError } from "../src/rule.ts";
-import { UnsafePatternError } from "../src/pattern/compile.ts";
+import { defineRule, RuleError } from "#src/rule.ts";
+import { UnsafePatternError } from "#src/pattern/compile.ts";
 
 const base = {
   id: "demo-token",

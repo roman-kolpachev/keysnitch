@@ -6,7 +6,7 @@
 // - unbounded repeats (+, *, {n,}) get the upper bound MAX_REPEAT.
 // Patterns that still fail the safety check get a hand-written override.
 
-import { MAX_REPEAT } from "../../src/pattern/check.ts";
+import { MAX_REPEAT } from "#src/pattern/check.ts";
 
 const LEADING_CONTEXT = "[\\w.-]{0,50}?";
 

@@ -21,6 +21,9 @@
   "bugs": "https://github.com/roman-kolpachev/keysnitch/issues",
   "homepage": "https://github.com/roman-kolpachev/keysnitch#readme",
   "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

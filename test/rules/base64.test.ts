@@ -7,7 +7,7 @@
 // - "user:secret" needs a user and a secret of 3 or more characters.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { decodeBase64, isEncodedUserAndSecret } from "../../src/rules/keysnitch.ts";
+import { decodeBase64, isEncodedUserAndSecret } from "#src/rules/keysnitch.ts";
 
 const encode = (text: string): string => Buffer.from(text, "latin1").toString("base64");
 
