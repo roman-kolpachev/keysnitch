@@ -26,6 +26,12 @@ export const OVERRIDES: Readonly<Record<string, Override>> = {
     reason:
       "Atlassian says the token length varies and documents the prefix ATAT: any length from 100 to 400 after ATATT, not exactly 186 after ATATT3; the end is a lookahead, so a token before & or ) is found too",
   },
+  "sourcegraph-access-token": {
+    pattern: String.raw`\b(sgp_(?:[a-fA-F0-9]{16}|local)_[a-fA-F0-9]{40}|sgp_[a-fA-F0-9]{40})(?![A-Za-z0-9_])|(?i:sourcegraph|src_access_token)${NAMED}([a-fA-F0-9]{40})${END}`,
+    keywords: ["sgp_", "sourcegraph", "src_access_token"],
+    reason:
+      "gitleaks takes any 40 hex characters once the text says sourcegraph anywhere, so every git commit hash there is a token; an old token without the sgp_ prefix now needs its name next to it",
+  },
   "gcp-api-key": {
     pattern: String.raw`\b(AIza[\w-]{35})(?![\w-])`,
     reason:
