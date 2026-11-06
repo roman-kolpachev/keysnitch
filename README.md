@@ -14,6 +14,14 @@ keysnitch reads a string and tells you where the credentials are: an Atlassian A
 - **Ranges, not values.** A finding says where the secret is. The value never lands in a finding, an error or a log.
 - **Nothing left readable.** When rules overlap, the finding covers all of them.
 
+## Try it
+
+Paste any text, such as a log, a config file, a chat message or a `.env` file, into the free [API key leak checker](https://simplify-software.org/tools/api-key-leak-checker). It runs keysnitch in your browser and sends nothing anywhere.
+
+## Used in
+
+[Secret Sentinel for Jira](https://marketplace.atlassian.com/apps/1051006300) and [Secret Sentinel for Confluence](https://marketplace.atlassian.com/apps/2527876384), Atlassian apps by the same author, redact what keysnitch finds in issues, comments and pages. They test every built-in rule in paragraphs, tables, code blocks, quotes, lists and headings.
+
 ## Install
 
 ```sh
