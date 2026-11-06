@@ -48,10 +48,11 @@
     "format:check": "prettier --check .",
     "test": "node --test --test-concurrency=2 \"test/**/*.test.ts\"",
     "coverage": "node --test --test-concurrency=2 --experimental-test-coverage --test-coverage-include=\"src/**\" --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 \"test/**/*.test.ts\"",
-    "build": "node tools/clean.ts && tsc -p tsconfig.build.json",
+    "build": "node tools/clean.ts && tsc -p tsconfig.build.json && node tools/fix-declarations.ts",
     "bench": "node bench/regex.ts",
     "docs:rules": "node tools/rules-doc.ts",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run coverage && npm run build && npm pack --dry-run --ignore-scripts"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run coverage && npm run build && npm run check:consumer && npm pack --dry-run --ignore-scripts",
+    "check:consumer": "tsc -p test/consumer/tsconfig.node10.json && tsc -p test/consumer/tsconfig.nodenext.json"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
