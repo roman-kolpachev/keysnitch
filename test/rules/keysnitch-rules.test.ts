@@ -25,8 +25,9 @@ const URLSAFE = `${ALNUM}_-`;
 function chars(alphabet: string, length: number, seed = 7): string {
   const next = random(seed);
   let out = "";
-  for (let index = 0; index < length; index += 1)
+  for (let index = 0; index < length; index += 1) {
     out += alphabet.charAt(Math.floor(next() * alphabet.length));
+  }
   return out;
 }
 
@@ -46,7 +47,9 @@ function assertFound(text: string, secret: string, ruleId?: string): void {
     hit !== undefined,
     `expected ${secret.slice(0, 12)}... in ${JSON.stringify(list.map(([id]) => id))}`,
   );
-  if (ruleId !== undefined) assert.equal(hit[0], ruleId);
+  if (ruleId !== undefined) {
+    assert.equal(hit[0], ruleId);
+  }
 }
 
 /** The secret is inside one finding (which may be wider), named by the given rule. */

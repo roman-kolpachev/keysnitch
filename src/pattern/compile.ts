@@ -46,6 +46,8 @@ function countGroups(node: Node): number {
 export function compile(source: string): CompiledPattern {
   const tree = parse(source);
   const result = check(tree);
-  if (result.problems.length > 0) throw new UnsafePatternError(result.problems);
+  if (result.problems.length > 0) {
+    throw new UnsafePatternError(result.problems);
+  }
   return { regex: new RegExp(emit(tree), "dg"), groups: countGroups(tree), tree, cost: result.cost };
 }

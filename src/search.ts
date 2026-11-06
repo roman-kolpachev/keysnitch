@@ -30,7 +30,9 @@ export function findRules(query: string, rules: readonly Rule[] = builtInRules):
 /** How many rules each company has, sorted by company name. */
 export function vendors(rules: readonly Rule[] = builtInRules): { vendor: string; count: number }[] {
   const counts = new Map<string, number>();
-  for (const rule of rules) counts.set(rule.vendor, (counts.get(rule.vendor) ?? 0) + 1);
+  for (const rule of rules) {
+    counts.set(rule.vendor, (counts.get(rule.vendor) ?? 0) + 1);
+  }
   return [...counts.entries()]
     .map(([vendor, count]) => ({ vendor, count }))
     .sort((a, b) => a.vendor.localeCompare(b.vendor, "en"));

@@ -19,7 +19,9 @@ export function charSet(ranges: readonly Range[]): CharSet {
   for (const [low, high] of ranges) {
     checkUnit(low);
     checkUnit(high);
-    if (low > high) throw new RangeError("reversed range in a character set");
+    if (low > high) {
+      throw new RangeError("reversed range in a character set");
+    }
   }
   const sorted = [...ranges].sort((a, b) => a[0] - b[0]);
   const merged: [number, number][] = [];
@@ -39,10 +41,14 @@ export function negate(set: CharSet): CharSet {
   const result: Range[] = [];
   let next = 0;
   for (const [low, high] of set) {
-    if (low > next) result.push([next, low - 1]);
+    if (low > next) {
+      result.push([next, low - 1]);
+    }
     next = high + 1;
   }
-  if (next <= MAX) result.push([next, MAX]);
+  if (next <= MAX) {
+    result.push([next, MAX]);
+  }
   return result;
 }
 
@@ -84,9 +90,13 @@ export function foldAsciiCase(set: CharSet): CharSet {
   const extra: Range[] = [];
   for (const range of set) {
     const upper = overlap(range, UPPER_A, UPPER_Z);
-    if (upper !== undefined) extra.push([upper[0] + CASE_GAP, upper[1] + CASE_GAP]);
+    if (upper !== undefined) {
+      extra.push([upper[0] + CASE_GAP, upper[1] + CASE_GAP]);
+    }
     const lower = overlap(range, LOWER_A, LOWER_Z);
-    if (lower !== undefined) extra.push([lower[0] - CASE_GAP, lower[1] - CASE_GAP]);
+    if (lower !== undefined) {
+      extra.push([lower[0] - CASE_GAP, lower[1] - CASE_GAP]);
+    }
   }
   return union(set, extra);
 }

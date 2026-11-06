@@ -98,7 +98,9 @@ class Parser {
 
   run(): Node {
     const node = this.alternation({ ignoreCase: false, dotAll: false }, false);
-    if (this.position < this.source.length) throw this.error("unmatched )");
+    if (this.position < this.source.length) {
+      throw this.error("unmatched )");
+    }
     return node;
   }
 
@@ -112,7 +114,9 @@ class Parser {
 
   private next(): string {
     const c = this.source[this.position];
-    if (c === undefined) throw this.error("unexpected end of pattern");
+    if (c === undefined) {
+      throw this.error("unexpected end of pattern");
+    }
     this.position += 1;
     return c;
   }
@@ -140,13 +144,17 @@ class Parser {
       const quantifier = this.quantifier();
       if (quantifier !== undefined) {
         const last = items.pop();
-        if (!repeatable || last === undefined) throw this.error("nothing to repeat", start);
+        if (!repeatable || last === undefined) {
+          throw this.error("nothing to repeat", start);
+        }
         items.push({ kind: "repeat", node: last, ...quantifier });
         repeatable = false;
         continue;
       }
       const atom = this.atom(flags, inLook);
-      if (atom === "flags") continue;
+      if (atom === "flags") {
+        continue;
+      }
       items.push(atom.node);
       repeatable = atom.repeatable;
     }
@@ -164,27 +172,36 @@ class Parser {
       max = c === "?" ? 1 : null;
     } else if (c === "{") {
       const counts = this.braces();
-      if (counts === undefined) return undefined;
+      if (counts === undefined) {
+        return undefined;
+      }
       [min, max] = counts;
     } else {
       return undefined;
     }
     const lazy = this.peek() === "?";
-    if (lazy) this.position += 1;
+    if (lazy) {
+      this.position += 1;
+    }
     return { min, max, lazy };
   }
 
   /** {n}, {n,} or {n,m}; anything else is not a quantifier (RE2 reads it literally). */
   private braces(): [number, number | null] | undefined {
     const match = /^\{(\d+)(,(\d*))?\}/u.exec(this.source.slice(this.position));
-    if (match === null) return undefined;
+    if (match === null) {
+      return undefined;
+    }
     const [whole, low, comma, high] = match;
     const start = this.position;
     const min = Number(low);
     const max = comma === undefined ? min : high === "" || high === undefined ? null : Number(high);
-    if (min > MAX_COUNT || (max !== null && max > MAX_COUNT))
+    if (min > MAX_COUNT || (max !== null && max > MAX_COUNT)) {
       throw this.error("repeat count above 100000", start);
-    if (max !== null && min > max) throw this.error("repeat range with min above max", start);
+    }
+    if (max !== null && min > max) {
+      throw this.error("repeat range with min above max", start);
+    }
     this.position += whole.length;
     return [min, max];
   }
@@ -227,8 +244,9 @@ class Parser {
       return { node: { kind: "assert", what: assertion[c] }, repeatable: false };
     }
     const shorthand = SHORTHAND[c];
-    if (shorthand !== undefined)
+    if (shorthand !== undefined) {
       return { node: { kind: "char", set: this.fold(shorthand, flags) }, repeatable: true };
+    }
     return {
       node: { kind: "char", set: this.fold(charSet([this.literalEscape(c, start)]), flags) },
       repeatable: true,
@@ -237,9 +255,13 @@ class Parser {
 
   /** An escape that stands for one character: punctuation, controls, hex. */
   private literalEscape(c: string, start: number): Range {
-    if (isPunctuation(c)) return single(c);
+    if (isPunctuation(c)) {
+      return single(c);
+    }
     const control = CONTROL_ESCAPES[c];
-    if (control !== undefined) return [control, control];
+    if (control !== undefined) {
+      return [control, control];
+    }
     if (c === "x") {
       const unit = this.hex(start);
       return [unit, unit];
@@ -251,9 +273,13 @@ class Parser {
     const braced = /^\{([0-9A-Fa-f]{1,6})\}/u.exec(this.source.slice(this.position));
     const plain = /^[0-9A-Fa-f]{2}/u.exec(this.source.slice(this.position));
     const match = braced ?? plain;
-    if (match === null) throw this.error("bad hex escape", start);
+    if (match === null) {
+      throw this.error("bad hex escape", start);
+    }
     const value = Number.parseInt(braced?.[1] ?? match[0], 16);
-    if (value > 0xffff) throw this.error("hex escape above 0xFFFF", start);
+    if (value > 0xffff) {
+      throw this.error("hex escape above 0xFFFF", start);
+    }
     this.position += match[0].length;
     return value;
   }
@@ -262,11 +288,15 @@ class Parser {
   private charClass(flags: Flags): CharSet {
     const start = this.position - 1;
     const negated = this.peek() === "^";
-    if (negated) this.position += 1;
+    if (negated) {
+      this.position += 1;
+    }
     let set: CharSet = [];
     let first = true;
     while (this.peek() !== "]" || first) {
-      if (this.peek() === undefined) throw this.error("unclosed character class", start);
+      if (this.peek() === undefined) {
+        throw this.error("unclosed character class", start);
+      }
       first = false;
       set = union(set, this.classItem(start));
     }
@@ -279,7 +309,9 @@ class Parser {
     if (this.startsWith("[:")) {
       const match = /^\[:[a-z]+:\]/u.exec(this.source.slice(this.position));
       const posix = match === null ? undefined : POSIX[match[0].slice(2, -2)];
-      if (match === null || posix === undefined) throw this.error("unknown POSIX class");
+      if (match === null || posix === undefined) {
+        throw this.error("unknown POSIX class");
+      }
       this.position += match[0].length;
       return posix;
     }
@@ -288,12 +320,17 @@ class Parser {
       const dash = this.position;
       this.position += 1;
       const high = this.classAtom();
-      if (typeof low !== "number" || typeof high !== "number")
+      if (typeof low !== "number" || typeof high !== "number") {
         throw this.error("range with a class at its end", dash);
-      if (low > high) throw this.error("reversed range", dash);
+      }
+      if (low > high) {
+        throw this.error("reversed range", dash);
+      }
       return charSet([[low, high]]);
     }
-    if (this.peek() === undefined) throw this.error("unclosed character class", classStart);
+    if (this.peek() === undefined) {
+      throw this.error("unclosed character class", classStart);
+    }
     return typeof low === "number" ? charSet([[low, low]]) : low;
   }
 
@@ -301,10 +338,14 @@ class Parser {
   private classAtom(): number | CharSet {
     const start = this.position;
     const c = this.next();
-    if (c !== "\\") return c.charCodeAt(0);
+    if (c !== "\\") {
+      return c.charCodeAt(0);
+    }
     const e = this.next();
     const shorthand = SHORTHAND[e];
-    if (shorthand !== undefined) return shorthand;
+    if (shorthand !== undefined) {
+      return shorthand;
+    }
     return this.literalEscape(e, start)[0];
   }
 
@@ -313,15 +354,23 @@ class Parser {
     inLook: boolean,
     start: number,
   ): "flags" | { node: Node; repeatable: boolean } {
-    if (this.peek() !== "?") return this.capture(flags.current, inLook, start, undefined);
+    if (this.peek() !== "?") {
+      return this.capture(flags.current, inLook, start, undefined);
+    }
     this.position += 1;
     if (this.startsWith("P<") || (this.peek() === "<" && this.peek(1) !== "=" && this.peek(1) !== "!")) {
       this.position += this.peek() === "P" ? 2 : 1;
       const end = this.source.indexOf(">", this.position);
-      if (end === -1) throw this.error("unclosed group name", start);
+      if (end === -1) {
+        throw this.error("unclosed group name", start);
+      }
       const name = this.source.slice(this.position, end);
-      if (!GROUP_NAME.test(name)) throw this.error("bad group name", start);
-      if (this.names.has(name)) throw this.error("duplicate group name", start);
+      if (!GROUP_NAME.test(name)) {
+        throw this.error("bad group name", start);
+      }
+      if (this.names.has(name)) {
+        throw this.error("duplicate group name", start);
+      }
       this.names.add(name);
       this.position = end + 1;
       return this.capture(flags.current, inLook, start, name);
@@ -341,7 +390,9 @@ class Parser {
     start: number,
     name: string | undefined,
   ): { node: Node; repeatable: boolean } {
-    if (inLook) throw this.error("capture inside a lookahead", start);
+    if (inLook) {
+      throw this.error("capture inside a lookahead", start);
+    }
     this.groups += 1;
     const index = this.groups;
     const node = this.alternation(flags, inLook);
@@ -361,14 +412,18 @@ class Parser {
     start: number,
   ): "flags" | { node: Node; repeatable: boolean } {
     const match = /^[is]*(?:-[is]*)?[:)]/u.exec(this.source.slice(this.position));
-    if (match === null) throw this.error("unknown group or flag", start);
+    if (match === null) {
+      throw this.error("unknown group or flag", start);
+    }
     const whole = match[0];
     const body = whole.slice(0, -1);
     const dash = body.indexOf("-");
     const on = dash === -1 ? body : body.slice(0, dash);
     const off = dash === -1 ? "" : body.slice(dash + 1);
     const end = whole.endsWith(")") ? ")" : ":";
-    if (end === ")" && on === "" && off === "") throw this.error("empty flag group", start);
+    if (end === ")" && on === "" && off === "") {
+      throw this.error("empty flag group", start);
+    }
     const updated: Flags = {
       ignoreCase: on.includes("i") ? true : off.includes("i") ? false : flags.current.ignoreCase,
       dotAll: on.includes("s") ? true : off.includes("s") ? false : flags.current.dotAll,
@@ -385,7 +440,9 @@ class Parser {
   }
 
   private close(start: number): void {
-    if (this.peek() !== ")") throw this.error("unclosed group", start);
+    if (this.peek() !== ")") {
+      throw this.error("unclosed group", start);
+    }
     this.position += 1;
   }
 
@@ -399,7 +456,11 @@ class Parser {
 
 /** Parses a rule pattern. Throws PatternError for anything it does not accept. */
 export function parse(source: string): Node {
-  if (source.length === 0) throw new PatternError("empty pattern", 0);
-  if (source.length > MAX_PATTERN_LENGTH) throw new PatternError("pattern longer than 10000 characters", 0);
+  if (source.length === 0) {
+    throw new PatternError("empty pattern", 0);
+  }
+  if (source.length > MAX_PATTERN_LENGTH) {
+    throw new PatternError("pattern longer than 10000 characters", 0);
+  }
   return new Parser(source).run();
 }

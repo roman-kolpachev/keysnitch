@@ -36,6 +36,7 @@ export default tseslint.config(
       },
     },
     rules: {
+      curly: ["error", "all"],
       "@typescript-eslint/consistent-type-assertions": ["error", { assertionStyle: "never" }],
       "@typescript-eslint/no-non-null-assertion": "error",
       "@typescript-eslint/no-explicit-any": "error",

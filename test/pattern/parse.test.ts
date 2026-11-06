@@ -22,7 +22,9 @@ import { contains, type CharSet } from "../../src/pattern/charset.ts";
 const code = (c: string): number => c.charCodeAt(0);
 
 function setOf(node: Node): CharSet {
-  if (node.kind !== "char") throw new Error(`expected a char node, got ${node.kind}`);
+  if (node.kind !== "char") {
+    throw new Error(`expected a char node, got ${node.kind}`);
+  }
   return node.set;
 }
 
@@ -34,7 +36,9 @@ function only(node: Node): Node {
   const list = items(node);
   assert.equal(list.length, 1);
   const first = list[0];
-  if (first === undefined) throw new Error("no node");
+  if (first === undefined) {
+    throw new Error("no node");
+  }
   return first;
 }
 
@@ -170,7 +174,9 @@ describe("shorthand classes", () => {
 describe("character classes", () => {
   it("parses ranges, single characters and escapes inside a class", () => {
     const set = setOf(only(parse("[a-c_\\-.\\]\\\\0-9]")));
-    for (const c of "abc_-.]\\05") assert.equal(contains(set, code(c)), true, c);
+    for (const c of "abc_-.]\\05") {
+      assert.equal(contains(set, code(c)), true, c);
+    }
     assert.equal(contains(set, code("d")), false);
   });
 
@@ -183,25 +189,33 @@ describe("character classes", () => {
 
   it("takes a leading ] or a trailing - literally", () => {
     const set = setOf(only(parse("[]a-]")));
-    for (const c of "]a-") assert.equal(contains(set, code(c)), true, c);
+    for (const c of "]a-") {
+      assert.equal(contains(set, code(c)), true, c);
+    }
   });
 
   it("parses shorthand classes and hex escapes inside a class", () => {
     const set = setOf(only(parse("[\\w\\s\\x60\"']")));
-    for (const c of "aZ_ `\"'") assert.equal(contains(set, code(c)), true, c);
+    for (const c of "aZ_ `\"'") {
+      assert.equal(contains(set, code(c)), true, c);
+    }
     assert.equal(contains(set, code("-")), false);
   });
 
   it("parses POSIX classes", () => {
     const set = setOf(only(parse("[[:alnum:]_]")));
-    for (const c of "aZ9_") assert.equal(contains(set, code(c)), true, c);
+    for (const c of "aZ9_") {
+      assert.equal(contains(set, code(c)), true, c);
+    }
     assert.equal(contains(set, code("-")), false);
     const upper = setOf(only(parse("[[:upper:][:digit:]]")));
     assert.equal(contains(upper, code("A")), true);
     assert.equal(contains(upper, code("a")), false);
     assert.equal(contains(upper, code("5")), true);
     const more = setOf(only(parse("[[:alpha:][:lower:][:space:][:xdigit:][:punct:]]")));
-    for (const c of "aZ \tF!") assert.equal(contains(more, code(c)), true, c);
+    for (const c of "aZ \tF!") {
+      assert.equal(contains(more, code(c)), true, c);
+    }
   });
 
   it("refuses broken classes", () => {
@@ -242,7 +256,9 @@ describe("groups and alternation", () => {
     const walk = (node: Node): void => {
       switch (node.kind) {
         case "group":
-          if (node.capture) indexes.push(node.index);
+          if (node.capture) {
+            indexes.push(node.index);
+          }
           walk(node.node);
           break;
         case "seq":
@@ -351,7 +367,9 @@ describe("case-insensitive parts", () => {
 describe("quantifiers", () => {
   const repeatOf = (pattern: string): { min: number; max: number | null; lazy: boolean } => {
     const node = only(parse(pattern));
-    if (node.kind !== "repeat") throw new Error(`expected a repeat, got ${node.kind}`);
+    if (node.kind !== "repeat") {
+      throw new Error(`expected a repeat, got ${node.kind}`);
+    }
     return { min: node.min, max: node.max, lazy: node.lazy };
   };
 

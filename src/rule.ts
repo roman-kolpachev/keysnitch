@@ -23,12 +23,16 @@ const SEVERITIES: readonly Severity[] = ["high", "medium", "low"];
 /** Lower-case letters and digits in parts joined by single dashes. */
 function isKebabCase(id: string): boolean {
   return id.split("-").every((part) => {
-    if (part === "") return false;
+    if (part === "") {
+      return false;
+    }
     for (let index = 0; index < part.length; index += 1) {
       const c = part.charCodeAt(index);
       const letter = c >= 0x61 && c <= 0x7a;
       const digit = c >= 0x30 && c <= 0x39;
-      if (!letter && !digit) return false;
+      if (!letter && !digit) {
+        return false;
+      }
     }
     return true;
   });
@@ -40,9 +44,15 @@ export function checkMetadata(spec: {
   readonly label: string;
   readonly severity: string;
 }): void {
-  if (!isKebabCase(spec.id)) throw new RuleError(spec.id, "the id must be kebab-case");
-  if (spec.vendor.trim() === "") throw new RuleError(spec.id, "the vendor is empty");
-  if (spec.label.trim() === "") throw new RuleError(spec.id, "the label is empty");
+  if (!isKebabCase(spec.id)) {
+    throw new RuleError(spec.id, "the id must be kebab-case");
+  }
+  if (spec.vendor.trim() === "") {
+    throw new RuleError(spec.id, "the vendor is empty");
+  }
+  if (spec.label.trim() === "") {
+    throw new RuleError(spec.id, "the label is empty");
+  }
   if (!SEVERITIES.some((severity) => severity === spec.severity)) {
     throw new RuleError(spec.id, "the severity must be high, medium or low");
   }
@@ -50,8 +60,12 @@ export function checkMetadata(spec: {
 
 function checkWords(id: string, words: readonly string[], what: string, lower: boolean): void {
   for (const word of words) {
-    if (word.trim() === "") throw new RuleError(id, `an empty ${what}`);
-    if (lower && word !== word.toLowerCase()) throw new RuleError(id, `${what} must be lower case`);
+    if (word.trim() === "") {
+      throw new RuleError(id, `an empty ${what}`);
+    }
+    if (lower && word !== word.toLowerCase()) {
+      throw new RuleError(id, `${what} must be lower case`);
+    }
   }
 }
 
@@ -61,8 +75,9 @@ export function defineRule(spec: RuleSpec): Rule {
   checkWords(spec.id, spec.keywords, "keyword", true);
   checkWords(spec.id, spec.aliases ?? [], "alias", false);
   const minEntropy = spec.minEntropy ?? 0;
-  if (!(minEntropy >= 0 && minEntropy <= 8))
+  if (!(minEntropy >= 0 && minEntropy <= 8)) {
     throw new RuleError(spec.id, "minEntropy must be between 0 and 8");
+  }
   const pattern = compile(spec.pattern);
   const secretGroup = spec.secretGroup ?? (pattern.groups > 0 ? "first" : 0);
   const known =

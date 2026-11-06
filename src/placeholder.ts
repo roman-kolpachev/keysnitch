@@ -31,14 +31,20 @@ const ANYWHERE = compile("(?i)your[_-]|example|changeme|change[_-]me|placeholder
 function isOneCharacterRepeated(value: string): boolean {
   const first = value.charCodeAt(0);
   for (let index = 1; index < value.length; index += 1) {
-    if (value.charCodeAt(index) !== first) return false;
+    if (value.charCodeAt(index) !== first) {
+      return false;
+    }
   }
   return value.length > 1;
 }
 
 /** True for values that are documentation or template placeholders. */
 export function isPlaceholder(value: string): boolean {
-  if (isOneCharacterRepeated(value)) return true;
-  if (value.search(ANYWHERE.regex) !== -1) return true;
+  if (isOneCharacterRepeated(value)) {
+    return true;
+  }
+  if (value.search(ANYWHERE.regex) !== -1) {
+    return true;
+  }
   return [...WHOLE, ...START].some((pattern) => value.search(pattern.regex) !== -1);
 }

@@ -24,7 +24,9 @@ const BUDGET_MS = 400;
 
 function tree(rule: Rule) {
   const compiled = compiledRule(rule);
-  if (compiled === undefined) throw new Error(`${rule.id} was not made by defineRule`);
+  if (compiled === undefined) {
+    throw new Error(`${rule.id} was not made by defineRule`);
+  }
   return compiled.pattern;
 }
 
@@ -52,8 +54,9 @@ export function exampleOf(rule: Rule): { text: string; value: string } | undefin
     const text = hasKeyword(rule, made) ? made : `${rule.keywords[0] ?? ""} ${made}`;
     const findings = scan(text, { rules: [rule] }).findings;
     const first = findings[0];
-    if (findings.length === 1 && first !== undefined)
+    if (findings.length === 1 && first !== undefined) {
       return { text, value: text.slice(first.start, first.end) };
+    }
   }
   return undefined;
 }
@@ -71,7 +74,9 @@ describe("facts of every built-in rule", () => {
         rule.keywords.length > 0,
         "every built-in rule has keywords, so it runs only where it can match",
       );
-      for (const keyword of rule.keywords) assert.equal(keyword, keyword.toLowerCase());
+      for (const keyword of rule.keywords) {
+        assert.equal(keyword, keyword.toLowerCase());
+      }
     });
   }
 });
@@ -89,7 +94,9 @@ describe("every built-in rule finds its own example", () => {
       ] as const) {
         const wrapped = `${open}${example.text}${close}`;
         const findings = scan(wrapped, { rules: [rule] }).findings;
-        if (findings.length === 0) continue; // some rules need the key on a line of its own
+        if (findings.length === 0) {
+          continue;
+        } // some rules need the key on a line of its own
         const values = findings.map((finding) => wrapped.slice(finding.start, finding.end));
         assert.ok(
           values.some((value) => value.includes(example.value.trim())),

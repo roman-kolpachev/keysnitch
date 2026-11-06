@@ -25,7 +25,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function json(path: string): Record<string, unknown> {
   const value: unknown = JSON.parse(read(path));
-  if (!isRecord(value)) throw new Error(`${path} is not an object`);
+  if (!isRecord(value)) {
+    throw new Error(`${path} is not an object`);
+  }
   return value;
 }
 
@@ -38,10 +40,14 @@ function files(directory: string, extensions: readonly string[]): string[] {
       if (
         name.startsWith(".") ||
         ["node_modules", "dist", "coverage", "reports", "third_party"].includes(name)
-      )
+      ) {
         continue;
-      if (statSync(join(root, child)).isDirectory()) walk(child);
-      else if (extensions.some((extension) => name.endsWith(extension))) out.push(child);
+      }
+      if (statSync(join(root, child)).isDirectory()) {
+        walk(child);
+      } else if (extensions.some((extension) => name.endsWith(extension))) {
+        out.push(child);
+      }
     }
   };
   walk(directory);
@@ -127,8 +133,9 @@ describe("source text", () => {
       for (let index = 0; index < text.length; index += 1) {
         const unit = text.charCodeAt(index);
         const allowed = unit === 0x0a || unit === 0x0d || unit === 0x09 || (unit >= 0x20 && unit <= 0x7e);
-        if (!allowed)
+        if (!allowed) {
           assert.fail(`${path}: character 0x${unit.toString(16)} at ${String(index)}; write it as an escape`);
+        }
       }
     }
   });

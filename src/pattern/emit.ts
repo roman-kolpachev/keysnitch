@@ -27,14 +27,18 @@ const SPECIAL_INSIDE = new Set(["\\", "]", "^", "-", "["]);
 
 function unit(code: number, special: ReadonlySet<string>): string {
   const c = String.fromCharCode(code);
-  if (code < 0x20 || code > 0x7e) return `\\u${code.toString(16).padStart(4, "0")}`;
+  if (code < 0x20 || code > 0x7e) {
+    return `\\u${code.toString(16).padStart(4, "0")}`;
+  }
   return special.has(c) ? `\\${c}` : c;
 }
 
 function ranges(set: CharSet): string {
   return set
     .map(([low, high]) => {
-      if (low === high) return unit(low, SPECIAL_INSIDE);
+      if (low === high) {
+        return unit(low, SPECIAL_INSIDE);
+      }
       return `${unit(low, SPECIAL_INSIDE)}-${unit(high, SPECIAL_INSIDE)}`;
     })
     .join("");
@@ -42,8 +46,9 @@ function ranges(set: CharSet): string {
 
 function charClass(set: CharSet): string {
   const first = set[0];
-  if (set.length === 1 && first !== undefined && first[0] === first[1])
+  if (set.length === 1 && first !== undefined && first[0] === first[1]) {
     return unit(first[0], SPECIAL_OUTSIDE);
+  }
   const negated = negate(set);
   return negated.length < set.length ? `[^${ranges(negated)}]` : `[${ranges(set)}]`;
 }
@@ -60,7 +65,9 @@ function quantifier(min: number, max: number | null, lazy: boolean): string {
 
 /** Source for a node that must act as one unit (before a quantifier, inside a sequence). */
 function atom(node: Node): string {
-  if (node.kind === "seq" || node.kind === "alt") return `(?:${emit(node)})`;
+  if (node.kind === "seq" || node.kind === "alt") {
+    return `(?:${emit(node)})`;
+  }
   return emit(node);
 }
 

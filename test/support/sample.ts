@@ -30,11 +30,15 @@ function pick(set: CharSet, next: () => number): string {
     for (const [from, to] of PREFERRED) {
       const a = Math.max(low, from);
       const b = Math.min(high, to);
-      if (a <= b) tiers[0]?.push([a, b]);
+      if (a <= b) {
+        tiers[0]?.push([a, b]);
+      }
     }
     const a = Math.max(low, 0x20);
     const b = Math.min(high, 0x7e);
-    if (a <= b) tiers[1]?.push([a, b]);
+    if (a <= b) {
+      tiers[1]?.push([a, b]);
+    }
     tiers[2]?.push([low, high]);
   }
   const ranges = tiers.find((tier) => tier.length > 0) ?? [];
@@ -42,7 +46,9 @@ function pick(set: CharSet, next: () => number): string {
   let index = Math.floor(next() * total);
   for (const [low, high] of ranges) {
     const width = high - low + 1;
-    if (index < width) return String.fromCharCode(low + index);
+    if (index < width) {
+      return String.fromCharCode(low + index);
+    }
     index -= width;
   }
   return "";
