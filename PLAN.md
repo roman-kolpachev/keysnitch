@@ -3,8 +3,10 @@
 ## Status
 
 - 2026-11-06, v0.1.0 (PR #3, merged): pattern parser, safety check and compiler; `scan`, `mask`, `findRules`, `vendors`, `defineRule`, custom matchers; 250 built-in rules (220 from gitleaks v8.30.1, 30 own); parity with the website checker; contract tests for every rule; repository checks. Private repository, not published.
-- 2026-11-06: Secret Sentinel runs on keysnitch (its PR #63, on development). Leak corpus of 1 Nov 2026: 1391 of 1400 (README, "How it compares").
+- 2026-11-06: Secret Sentinel for Jira and Confluence runs on keysnitch (in testing). Leak corpus of 1 Nov 2026: 1391 of 1400 (README, "How it compares").
 - 2026-11-06: the rules that keep the code safe moved from ESLint into `test/repo.test.ts` (PR #6).
+- 2026-11-06: Sourcegraph rule no longer takes git commit hashes for tokens (PR #9, found by scanning the repository's own history).
+- 2026-11-06: ready to publish: CI on Node 24 and 26, a release workflow with npm provenance, badges, changelog links, workflow tests (actions pinned to commit hashes, read-only tokens).
 - 2026-11-06: oxlint instead of ESLint, TypeScript 7.0.2 (docs/decisions.md, D-11). Dependabot PR #1 (TypeScript 7) is done by this; PR #2 (@types/node 26) is not taken: the Node types match the oldest Node in `engines` (24, also Forge's).
 
 ## Mutation testing
@@ -16,16 +18,14 @@ Config used: `testRunner: command`, `coverageAnalysis: off`, `concurrency: 2`, `
 ## Next
 
 1. More vendors with published prefixes that neither gitleaks nor the website checker has. Ideas: Heroku platform keys in new formats, Okta, Datadog application keys, Jenkins API tokens (no prefix, needs a context word), Cloudflare API tokens in new formats.
-2. Before going public: turn on GitHub private vulnerability reporting, secret scanning and push protection; check that CI runs; publish to npm with provenance.
+2. When the repository goes public: turn on private vulnerability reporting, secret scanning and push protection, delete branches after merge, add topics; check that CI runs. Publish 0.1.0 by hand once (the package must exist before npm trusted publishing can be set up), then add this repository's `release.yml` as the trusted publisher on npmjs.com; later versions go out through GitHub releases.
 
-## Questions for the owner
+## Open questions
 
-1. **License.** MIT is the default (same as gitleaks and secretlint). Change before the repository goes public if you want Apache-2.0.
-2. **"1Password" after a colon** is reported by the setting rule (D-8). Default: keep it, the rule finds real passwords in YAML that way. Alternative: a list of brand names to skip.
-3. **Values with `&` in a URL query.** The setting rule takes `token=...&next=1` up to the next space, because a password may hold `&`. Default: keep (more is hidden, nothing stays readable). Alternative: stop at `&` inside URLs only.
-4. **Website checker bug.** Its Sentry pattern `sntr[yu]s_` accepts "sntrus_" (not a real prefix) and misses user tokens (`sntryu_`). keysnitch finds both real prefixes. The owner wants it fixed (2026-11-06); the checker may move to keysnitch once it is on npm.
+1. **"1Password" after a colon** is reported by the setting rule (D-8). Default: keep it, the rule finds real passwords in YAML that way. Alternative: a list of brand names to skip.
+2. **Values with `&` in a URL query.** The setting rule takes `token=...&next=1` up to the next space, because a password may hold `&`. Default: keep (more is hidden, nothing stays readable). Alternative: stop at `&` inside URLs only.
 
 ## Ideas found while building
 
-- A `redact()` helper that writes a marker per finding (Secret Sentinel has its own markers, so it stays out of v0.1.0).
+- A `redact()` helper that writes a marker per finding (Secret Sentinel, the first user, has its own markers, so it stays out of v0.1.0).
 - Checksum validation for GitHub and npm tokens (CRC32): fewer false positives, but only where the vendor documents it.

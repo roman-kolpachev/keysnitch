@@ -7,7 +7,7 @@ keysnitch finds leaked credentials in text. It is a security tool, so its own mi
 - **Strict TDD.** Scenario first, one test run and seen failing for the right reason, the least code, refactor on green. No code in `src/` without a test that asked for it.
 - **Fast checks before every commit:** `npm run typecheck`, `npm run lint`, `npm run format:check` and the tests you touched. **`npm run check` once at the end of a version** and before every merge.
 - **Sequentially.** One test run at a time (`--test-concurrency=2`). No parallel agents.
-- **Never stop on a question.** Write it into `PLAN.md` under "Questions for the owner" with the safe default you chose, and continue.
+- **Never stop on a question.** Write it into `PLAN.md` under "Open questions" with the safe default you chose, and continue.
 
 ## What must stay true
 
