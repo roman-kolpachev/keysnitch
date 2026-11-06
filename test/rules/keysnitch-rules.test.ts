@@ -260,6 +260,13 @@ describe("secrets in settings", () => {
     assertFound("export DB_PASSWORD=s3cr3tPassw0rd\n", "s3cr3tPassw0rd");
   });
 
+  it("ends a value at markup, so HTML around a setting is never part of it", () => {
+    assertFound("<p>password=hunter2value</p><p>next</p>", "hunter2value");
+    assertFound("<td>secret: s3cr3t-value</td>", "s3cr3t-value");
+    assertFound("<p>export API_TOKEN=Q8w2Er4Ty6Ui</p>", "Q8w2Er4Ty6Ui");
+    assertFound("<code>docker login -u bot -p Pz9k2LmQx8</code>", "Pz9k2LmQx8");
+  });
+
   it("after a colon, finds values that look random or are long, as YAML and JSON write them", () => {
     assertFound("password: hunter2\n", "hunter2");
     assertFound("token: Q8w2Er4Ty6Ui\n", "Q8w2Er4Ty6Ui");

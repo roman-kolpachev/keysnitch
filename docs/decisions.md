@@ -53,7 +53,7 @@ keysnitch does not guess random strings by entropy. A minimum entropy is used on
 
 ## D-8. Setting rules: a name, then a value that does not read like prose
 
-`password=...`, `JIRA_API_TOKEN=...`, `app_key: ...`, `"clientSecret": "..."` are found by name. The name must end right before the operator, so `passport=` and `tokenUrl=` do not count. After `=`, any value of 6 or more characters counts. After `:` (which prose uses too) the value must have letters together with a digit or a symbol, or be 20 characters or more, so "Credentials: regenerate" and "Docs: id.atlassian.com" are not reported. Types (`password: string`), references (`this.token`) and calls (`getPassword()`) are left out. The price: "1Password" after a colon is reported.
+`password=...`, `JIRA_API_TOKEN=...`, `app_key: ...`, `"clientSecret": "..."` are found by name. The name must end right before the operator, so `passport=` and `tokenUrl=` do not count. After `=`, any value of 6 or more characters counts; a value ends at a space, a quote, `,`, `;`, `<` or `>`, so HTML around a setting is never part of it. After `:` (which prose uses too) the value must have letters together with a digit or a symbol, or be 20 characters or more, so "Credentials: regenerate" and "Docs: id.atlassian.com" are not reported. Types (`password: string`), references (`this.token`) and calls (`getPassword()`) are left out. The price: "1Password" after a colon is reported.
 
 ## D-9. Test values are built when tests run
 
