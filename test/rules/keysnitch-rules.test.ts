@@ -383,3 +383,66 @@ describe("headers and commands", () => {
     assertNothing("docker login -u bot --password-stdin registry.test");
   });
 });
+
+// Scenarios: a finding covers the whole secret and nothing after it.
+// - a Base64-encoded JWT without "=" padding, then a line of text: the next
+//   word is not part of the finding;
+// - a Base64-encoded JWT wrapped at 76 (base64) or 64 (openssl) characters
+//   per line: every line of it is covered;
+// - a value longer than 200 characters in a setting, an export, a sentence,
+//   a table or docker login -p: covered whole, never only its start.
+describe("ranges cover the whole secret and nothing else", () => {
+  const encodedJwt = (signatureLength: number): string => {
+    const part = (json: string): string => Buffer.from(json).toString("base64url");
+    const token = `${part('{"alg":"RS256","typ":"JWT"}')}.${part('{"sub":"system:serviceaccount:ci:deployer"}')}.${chars(URLSAFE, signatureLength, 31)}`;
+    return Buffer.from(token).toString("base64");
+  };
+  const unpadded = [40, 41, 42, 43, 44, 45].map(encodedJwt).find((value) => !value.endsWith("=")) ?? "";
+  const wrap = (value: string, width: number): string =>
+    value.replace(new RegExp(`(.{${String(width)}})(?=.)`, "gu"), "$1\n");
+
+  it("stops a Base64 JWT at the end of its line", () => {
+    assert.ok(unpadded.length > 0);
+    assertFound(`data:\n  token: ${unpadded}\nkind: Secret\n`, unpadded);
+    assertFound(`${unpadded}\nPlease rotate it today.`, unpadded, "jwt-base64");
+  });
+
+  it("covers every line of a wrapped Base64 JWT", () => {
+    const value = encodedJwt(300);
+    for (const width of [76, 64]) {
+      const wrapped = wrap(value, width);
+      assert.ok(wrapped.split("\n").length >= 3);
+      assertFound(`token:\n${wrapped}\nkind: Secret\n`, wrapped, "jwt-base64");
+      const crlf = wrapped.replaceAll("\n", "\r\n");
+      assertFound(`token:\r\n${crlf}\r\nkind: Secret\r\n`, crlf, "jwt-base64");
+    }
+  });
+
+  it("covers a long value whole, wherever a setting rule finds it", () => {
+    const long = chars(ALNUM, 300, 33);
+    assertFound(`client_secret=${long}\nnext line`, long);
+    assertFound(`client_secret: "${long}"`, long);
+    assertFound(`export API_TOKEN=${long}\n`, long);
+    assertFound(`The service password is ${long} for now.`, long);
+    assertFound(`| Service | Password |\n| --- | --- |\n| Grafana | ${long} |\n`, long);
+    assertFound(`docker login -u bot -p ${long} registry.test`, long, "docker-login-password");
+    assertFound(`curl -u admin:${long} https://x.test`, `admin:${long}`);
+  });
+
+  it("takes == as the operator, so a value after it is still found", () => {
+    assertFound("token==Xk9vT2qLm4w\n", "Xk9vT2qLm4w");
+  });
+
+  it("never reports only the start of a value it cannot cover", () => {
+    const huge = chars(ALNUM, 5000, 35);
+    for (const text of [`client_secret=${huge}`, `export API_TOKEN=${huge}`]) {
+      const start = text.length - huge.length;
+      for (const finding of scan(text).findings) {
+        assert.ok(
+          finding.end <= start || (finding.start <= start && finding.end === text.length),
+          text.slice(0, 20),
+        );
+      }
+    }
+  });
+});

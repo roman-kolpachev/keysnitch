@@ -19,6 +19,17 @@ const CURL = String.raw`\bcurl\b[\s\S]{0,500}?[ \t\r\n]`;
 const NAMED = String.raw`(?:[ \t\w.-]{0,20})[\s'"]{0,3}(?:=|>|:{1,3}=|\|\||:|=>|\?=|,)[\x60'"\s=]{0,5}`;
 const END = String.raw`(?:[\x60'"\s;]|\\[nr]|$)`;
 
+// The header names a Base64-encoded JWT can start with (gitleaks' list).
+const JWT_HEADERS = String.raw`(?:aGJHY2lPaU|aGNIVWlPaU|aGNIWWlPaU|aGRXUWlPaU|aU5qUWlP|amNtbDBJanBi|amRIa2lPaU|bGNHc2lPbn|bGJtTWlPaU|cWEzVWlPaU|cWQyc2lPb|cGMzTWlPaU|cGRpSTZJ|cmFXUWlP|clpYbGZiM0J6SWpwY|cmRIa2lPaUp|dWIyNWpaU0k2|d01tTWlP|d01uTWlPaU|d2NIUWlPaU|emRXSWlPaU|emRuUWlP|MFlXY2lPaU|MGVYQWlPaUp|MWNtd2l|MWMyVWlPaUp|MlpYSWlPaU|MlpYSnphVzl1SWpv|NElqb2|NE5XTWlP|NE5YUWlPaU|NE5YUWpVekkxTmlJNkl|NE5YVWlPaU|NmFYQWlPaU)`;
+
+// Base64 wrapped at `width` characters per line, as base64 (76) and openssl
+// (64) print it: a full first line, full lines, then a last line that ends
+// where the Base64 ends. Lines of a fixed length keep the pattern linear.
+function wrappedBase64(width: number, eol: string): string {
+  const line = "[A-Za-z0-9+/]";
+  return String.raw`\bZXlK${line}{${String(width - 4)}}(?:${eol}${line}{${String(width)}}){0,40}${eol}${line}{1,${String(width)}}={0,2}(?![A-Za-z0-9+/=])`;
+}
+
 export const OVERRIDES: Readonly<Record<string, Override>> = {
   "atlassian-api-token": {
     pattern: String.raw`(?i)(?:(?-i:ATLASSIAN|[Aa]tlassian)|(?-i:CONFLUENCE|[Cc]onfluence)|(?-i:JIRA|[Jj]ira))${NAMED}([a-z0-9]{20}[a-f0-9]{4})${END}|\b((?-i:ATATT)[A-Za-z0-9_=-]{100,400})(?![A-Za-z0-9_=-])`,
@@ -79,13 +90,21 @@ export const OVERRIDES: Readonly<Record<string, Override>> = {
       "the UUID parts are not capture groups, so the whole URL is the secret (in gitleaks the first group, 5 characters, was reported)",
   },
   "jwt-base64": {
-    pattern: String.raw`\bZXlK(?:aGJHY2lPaU|aGNIVWlPaU|aGNIWWlPaU|aGRXUWlPaU|aU5qUWlP|amNtbDBJanBi|amRIa2lPaU|bGNHc2lPbn|bGJtTWlPaU|cWEzVWlPaU|cWQyc2lPb|cGMzTWlPaU|cGRpSTZJ|cmFXUWlP|clpYbGZiM0J6SWpwY|cmRIa2lPaUp|dWIyNWpaU0k2|d01tTWlP|d01uTWlPaU|d2NIUWlPaU|emRXSWlPaU|emRuUWlP|MFlXY2lPaU|MGVYQWlPaUp|MWNtd2l|MWMyVWlPaUp|MlpYSWlPaU|MlpYSnphVzl1SWpv|NElqb2|NE5XTWlP|NE5YUWlPaU|NE5YUWpVekkxTmlJNkl|NE5YVWlPaU|NmFYQWlPaU)[a-zA-Z0-9/\\_+\-\r\n]{40,2048}={0,2}`,
+    // The wrapped shapes come first: the first alternative that matches wins.
+    pattern: [
+      ...[76, 64].flatMap((width) =>
+        [String.raw`\n`, String.raw`\r\n`].map((eol) => wrappedBase64(width, eol)),
+      ),
+      String.raw`\bZXlK${JWT_HEADERS}[a-zA-Z0-9/\\_+\-]{40,2048}={0,2}(?![a-zA-Z0-9/\\_+=\-])`,
+    ]
+      .map((shape) => `(?:${shape})`)
+      .join("|"),
     secretGroup: 0,
     reason:
-      "the header names are not capture groups, so the whole token is the secret (in gitleaks the first group, a header name, was reported); the body is bounded at 2048 characters",
+      "the header names are not capture groups, so the whole token is the secret (in gitleaks the first group, a header name, was reported); gitleaks lets the token run over line breaks and so took the first word of the next line: one line now ends with a lookahead, and a token wrapped at 76 (base64) or 64 (openssl) characters per line is taken line by line",
   },
   "curl-auth-user": {
-    pattern: `${CURL}(?:-u|--user)(?:=|[ \\t]{1,5})(?:"([^":\\s]{1,200}:[^"\\s]{3,200})"|'([^':\\s]{1,200}:[^'\\s]{3,200})'|([^\\s"':]{1,200}:[^\\s"']{3,200}))`,
+    pattern: `${CURL}(?:-u|--user)(?:=|[ \\t]{1,5})(?:"([^":\\s]{1,200}:[^"\\s]{3,4096})"|'([^':\\s]{1,200}:[^'\\s]{3,4096})'|([^\\s"':]{1,200}:[^\\s"']{3,4096})(?![^\\s"']))`,
     allow: [
       String.raw`^[^:]{1,200}:(?:change(?:it|me)|pass(?:word)?|pwd|test|token|\*{1,200}|x{1,200})$`,
       String.raw`^<[^>]{1,200}>:<[^>]{1,200}>$`,

@@ -449,7 +449,7 @@ export const gitleaksRules: readonly RuleSpec[] = [
     severity: "high",
     keywords: ["curl"],
     pattern:
-      "\\bcurl\\b[\\s\\S]{0,500}?[ \\t\\r\\n](?:-u|--user)(?:=|[ \\t]{1,5})(?:\"([^\":\\s]{1,200}:[^\"\\s]{3,200})\"|'([^':\\s]{1,200}:[^'\\s]{3,200})'|([^\\s\"':]{1,200}:[^\\s\"']{3,200}))",
+      "\\bcurl\\b[\\s\\S]{0,500}?[ \\t\\r\\n](?:-u|--user)(?:=|[ \\t]{1,5})(?:\"([^\":\\s]{1,200}:[^\"\\s]{3,4096})\"|'([^':\\s]{1,200}:[^'\\s]{3,4096})'|([^\\s\"':]{1,200}:[^\\s\"']{3,4096})(?![^\\s\"']))",
     minEntropy: 2,
     allow: [
       "^[^:]{1,200}:(?:change(?:it|me)|pass(?:word)?|pwd|test|token|\\*{1,200}|x{1,200})$",
@@ -1271,7 +1271,7 @@ export const gitleaksRules: readonly RuleSpec[] = [
     severity: "medium",
     keywords: ["zxlk"],
     pattern:
-      "\\bZXlK(?:aGJHY2lPaU|aGNIVWlPaU|aGNIWWlPaU|aGRXUWlPaU|aU5qUWlP|amNtbDBJanBi|amRIa2lPaU|bGNHc2lPbn|bGJtTWlPaU|cWEzVWlPaU|cWQyc2lPb|cGMzTWlPaU|cGRpSTZJ|cmFXUWlP|clpYbGZiM0J6SWpwY|cmRIa2lPaUp|dWIyNWpaU0k2|d01tTWlP|d01uTWlPaU|d2NIUWlPaU|emRXSWlPaU|emRuUWlP|MFlXY2lPaU|MGVYQWlPaUp|MWNtd2l|MWMyVWlPaUp|MlpYSWlPaU|MlpYSnphVzl1SWpv|NElqb2|NE5XTWlP|NE5YUWlPaU|NE5YUWpVekkxTmlJNkl|NE5YVWlPaU|NmFYQWlPaU)[a-zA-Z0-9/\\\\_+\\-\\r\\n]{40,2048}={0,2}",
+      "(?:\\bZXlK[A-Za-z0-9+/]{72}(?:\\n[A-Za-z0-9+/]{76}){0,40}\\n[A-Za-z0-9+/]{1,76}={0,2}(?![A-Za-z0-9+/=]))|(?:\\bZXlK[A-Za-z0-9+/]{72}(?:\\r\\n[A-Za-z0-9+/]{76}){0,40}\\r\\n[A-Za-z0-9+/]{1,76}={0,2}(?![A-Za-z0-9+/=]))|(?:\\bZXlK[A-Za-z0-9+/]{60}(?:\\n[A-Za-z0-9+/]{64}){0,40}\\n[A-Za-z0-9+/]{1,64}={0,2}(?![A-Za-z0-9+/=]))|(?:\\bZXlK[A-Za-z0-9+/]{60}(?:\\r\\n[A-Za-z0-9+/]{64}){0,40}\\r\\n[A-Za-z0-9+/]{1,64}={0,2}(?![A-Za-z0-9+/=]))|(?:\\bZXlK(?:aGJHY2lPaU|aGNIVWlPaU|aGNIWWlPaU|aGRXUWlPaU|aU5qUWlP|amNtbDBJanBi|amRIa2lPaU|bGNHc2lPbn|bGJtTWlPaU|cWEzVWlPaU|cWQyc2lPb|cGMzTWlPaU|cGRpSTZJ|cmFXUWlP|clpYbGZiM0J6SWpwY|cmRIa2lPaUp|dWIyNWpaU0k2|d01tTWlP|d01uTWlPaU|d2NIUWlPaU|emRXSWlPaU|emRuUWlP|MFlXY2lPaU|MGVYQWlPaUp|MWNtd2l|MWMyVWlPaUp|MlpYSWlPaU|MlpYSnphVzl1SWpv|NElqb2|NE5XTWlP|NE5YUWlPaU|NE5YUWpVekkxTmlJNkl|NE5YVWlPaU|NmFYQWlPaU)[a-zA-Z0-9/\\\\_+\\-]{40,2048}={0,2}(?![a-zA-Z0-9/\\\\_+=\\-]))",
     secretGroup: 0,
     minEntropy: 2,
     generic: true,

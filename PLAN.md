@@ -8,6 +8,7 @@
 - 2026-11-06: Sourcegraph rule no longer takes git commit hashes for tokens (PR #9, found by scanning the repository's own history).
 - 2026-11-06: ready to publish: CI on Node 24 and 26, a release workflow with npm provenance, badges, changelog links, workflow tests (actions pinned to commit hashes, read-only tokens).
 - 2026-11-06: oxlint instead of ESLint, TypeScript 7.0.2 (docs/decisions.md, D-11). Dependabot PR #1 (TypeScript 7) is done by this; PR #2 (@types/node 26) is not taken: the Node types match the oldest Node in `engines` (24, also Forge's).
+- 2026-11-06: ranges cover the whole secret and nothing else: `jwt-base64` stops at the end of its line (wrapped tokens line by line), setting rules cover long values whole or not at all (were cut at 200 characters). Found while checking the Secret Sentinel guide on simplify-software.org.
 
 ## Mutation testing
 
@@ -24,6 +25,9 @@ Config used: `testRunner: command`, `coverageAnalysis: off`, `concurrency: 2`, `
 
 1. **"1Password" after a colon** is reported by the setting rule (D-8). Default: keep it, the rule finds real passwords in YAML that way. Alternative: a list of brand names to skip.
 2. **Values with `&` in a URL query.** The setting rule takes `token=...&next=1` up to the next space, because a password may hold `&`. Default: keep (more is hidden, nothing stays readable). Alternative: stop at `&` inside URLs only.
+3. **A value right after `==`.** `token==<value>` is read as the operator `==` and then the value, so if a password itself starts with `=`, that one character stays readable. The value may not start with `=`, which keeps the pattern linear at 2,048 characters. Default: keep. Alternative: none found that stays linear.
+4. **A line of one word after a wrapped Base64 JWT.** A wrapped token whose last line is exactly full (76 or 64 characters) can take a next line made only of Base64 characters, such as `Thanks`, as its last line. Default: keep (needs both the exact length and such a line). Alternative: a matcher written in code that reads the line widths.
+5. **Setting values longer than 2,048 characters** (4,096 for the other setting rules) are not reported, so that no part of them is shown as covered. Default: keep. Alternative: a higher limit, which the slow-input contract test refuses for the `=` rule today.
 
 ## Ideas found while building
 
