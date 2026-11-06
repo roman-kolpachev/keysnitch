@@ -7,6 +7,12 @@
 //   written as escapes;
 // - src/ runs anywhere: no node: imports, no console, no eval, no network,
 //   no process;
+// - every RegExp in src/ is built by src/pattern/compile.ts, after the
+//   safety check: no regex literals (parse.ts excepted) and no RegExp
+//   anywhere else;
+// - no any, no type assertions, no non-null assertions, and no comment
+//   that turns a check off. These were lint rules; as tests they hold
+//   whatever linter the project uses;
 // - texts are written plainly, without long dashes;
 // - keysnitch finds no credential in its own source, tools and docs;
 // - the published package holds only dist and the documents.
@@ -15,6 +21,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { scan } from "../src/scan.ts";
+import { readCode } from "./support/code.ts";
 
 const root = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/u, "$1");
 const read = (path: string): string => readFileSync(join(root, path), "utf8");
@@ -154,6 +161,54 @@ describe("source text", () => {
         "require(",
       ]) {
         assert.ok(!text.includes(banned), `${path} uses ${banned}`);
+      }
+    }
+  });
+
+  it("builds a RegExp only in src/pattern/compile.ts, after the safety check", () => {
+    // parse.ts reads rule sources (never scanned text) with a few fixed,
+    // anchored regex literals; it still may not build a RegExp.
+    for (const path of files("src", [".ts"])) {
+      const name = path.replaceAll("\\", "/");
+      if (name === "src/pattern/compile.ts") {
+        continue;
+      }
+      const { code, regexes } = readCode(read(path));
+      assert.ok(!/\bRegExp\b/u.test(code), `${path} uses RegExp; write a rule pattern instead`);
+      if (name !== "src/pattern/parse.ts") {
+        assert.deepEqual(regexes, [], `${path} has a regex literal; write a rule pattern instead`);
+      }
+    }
+  });
+
+  it("has no any, no type assertions and no non-null assertions", () => {
+    for (const path of code.filter((file) => file.endsWith(".ts"))) {
+      const lines = readCode(read(path))
+        .code.replace(/\b(?:import|export)\s+(?:type\s+)?\{[^}]*\}/gu, (specifiers) =>
+          specifiers.replace(/[^\n]/gu, " "),
+        )
+        .split("\n");
+      lines.forEach((line, at) => {
+        const where = `${path}:${String(at + 1)}`;
+        assert.ok(!/\bany\b/u.test(line), `${where} uses any; use unknown and a guard`);
+        assert.ok(!/(?<!\*\s*)\bas\s+(?!const\b)/u.test(line), `${where} has a type assertion; use a guard`);
+        assert.ok(!/[\w)\]]!(?!=)/u.test(line), `${where} has a non-null assertion; check for undefined`);
+      });
+    }
+  });
+
+  it("has no comments that turn a check off", () => {
+    const switches = [
+      "@ts-" + "ignore",
+      "@ts-" + "expect-error",
+      "@ts-" + "nocheck",
+      "eslint-" + "disable",
+      "oxlint-" + "disable",
+    ];
+    for (const path of code) {
+      const text = read(path);
+      for (const comment of switches) {
+        assert.ok(!text.includes(comment), `${path} has ${comment}; change the code or the rule instead`);
       }
     }
   });
