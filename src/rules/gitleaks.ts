@@ -2145,9 +2145,9 @@ export const gitleaksRules: readonly RuleSpec[] = [
     vendor: "Sourcegraph",
     label: "Sourcegraph access token",
     severity: "high",
-    keywords: ["sgp_", "sourcegraph"],
+    keywords: ["sgp_", "sourcegraph", "src_access_token"],
     pattern:
-      "(?i)\\b(\\b(sgp_(?:[a-fA-F0-9]{16}|local)_[a-fA-F0-9]{40}|sgp_[a-fA-F0-9]{40}|[a-fA-F0-9]{40})\\b)(?:[\\x60'\"\\s;]|\\\\[nr]|$)",
+      "\\b(sgp_(?:[a-fA-F0-9]{16}|local)_[a-fA-F0-9]{40}|sgp_[a-fA-F0-9]{40})(?![A-Za-z0-9_])|(?i:sourcegraph|src_access_token)(?:[ \\t\\w.-]{0,20})[\\s'\"]{0,3}(?:=|>|:{1,3}=|\\|\\||:|=>|\\?=|,)[\\x60'\"\\s=]{0,5}([a-fA-F0-9]{40})(?:[\\x60'\"\\s;]|\\\\[nr]|$)",
     minEntropy: 3,
     source: "gitleaks v8.30.1: sourcegraph-access-token",
   },

@@ -9,6 +9,7 @@
 //   Docker Hub, Figma, Supabase, Square, Mapbox, Notion, Discord;
 // - passwords in URLs, secrets in settings and .env files, Authorization
 //   headers, curl -u and docker login -p;
+// - Sourcegraph tokens, but not git commit hashes in a text about it;
 // - the reported range is exactly the secret: no quote, no "&", no label;
 // - look-alikes and placeholders are not reported.
 // Values are built from parts here; none is a real credential.
@@ -230,6 +231,33 @@ describe("shapes secretlint finds", () => {
     assertFound(`key ${linear} end`, linear, "linear-api-key");
     const onePassword = `ops_eyJ${chars(`${ALNUM}+/`, 150, 55)}fQ==`;
     assertFound(`token ${onePassword} end`, onePassword, "1password-service-account-token");
+  });
+});
+
+describe("Sourcegraph", () => {
+  // gitleaks takes any 40 hex characters once the text says "sourcegraph"
+  // anywhere, so every git commit hash in such a text was a "token".
+  const legacy = chars(HEX, 40, 11);
+
+  it("finds sgp_ tokens on their own", () => {
+    const token = `sgp_${chars(HEX, 16, 12)}_${chars(HEX, 40, 13)}`;
+    assertFound(`token ${token} here`, token, "sourcegraph-access-token");
+    const short = `sgp_${chars(HEX, 40, 14)}`;
+    assertFound(`"${short}"`, short, "sourcegraph-access-token");
+  });
+
+  it("finds an old token without a prefix when it is named", () => {
+    assertFound(`SOURCEGRAPH_TOKEN=${legacy}\n`, legacy, "sourcegraph-access-token");
+    assertFound(`sourcegraph_access_token: "${legacy}"`, legacy, "sourcegraph-access-token");
+  });
+
+  it("does not take a commit hash for a token in a text about Sourcegraph", () => {
+    const text = `Searched it in Sourcegraph.
+commit ${legacy}
+Author: A
+
+merged ${chars(HEX, 40, 15)} today`;
+    assert.deepEqual(found(text), []);
   });
 });
 
