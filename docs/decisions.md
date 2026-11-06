@@ -20,7 +20,7 @@ Measured with `node bench/regex.ts` (Node 24.22.1, about 1 MB of text, re2js 2.9
 | keyword rule (`(?:app_?key\|secret\|token)\s*[:=]...`, case-insensitive) |          0.8 ms | 155 ms |
 | no prefix (three segments with dots)                                     |         20.5 ms | 0.1 ms |
 
-re2js wins when a pattern has a rare literal in the middle, and loses badly on case-insensitive keyword rules, which are a large part of the rule set. A full scan with all 248 rules takes about 115 ms per MB of text. Other reasons:
+re2js wins when a pattern has a rare literal in the middle, and loses badly on case-insensitive keyword rules, which are a large part of the rule set. A full scan with all 250 rules takes about 115 ms per MB of text. Other reasons:
 
 - RE2 has no lookahead, which keysnitch uses to end a key without taking the next character (D-6).
 - re2js would be the only runtime dependency of a security tool.
@@ -53,7 +53,7 @@ keysnitch does not guess random strings by entropy. A minimum entropy is used on
 
 ## D-8. Setting rules: a name, then a value that does not read like prose
 
-`password=...`, `JIRA_API_TOKEN=...`, `app_key: ...`, `"clientSecret": "..."` are found by name. The name must end right before the operator, so `passport=` and `tokenUrl=` do not count. After `=`, any value of 6 or more characters counts; a value ends at a space, a quote, `,`, `;`, `<` or `>`, so HTML around a setting is never part of it. After `:` (which prose uses too) the value must have letters together with a digit or a symbol, or be 20 characters or more, so "Credentials: regenerate" and "Docs: id.atlassian.com" are not reported. Types (`password: string`), references (`this.token`) and calls (`getPassword()`) are left out. The price: "1Password" after a colon is reported.
+`password=...`, `JIRA_API_TOKEN=...`, `app_key: ...`, `"clientSecret": "..."` are found by name. The name must end right before the operator, so `passport=` and `tokenUrl=` do not count. After `=`, any value of 6 or more characters counts; a value ends at a space, a quote, `,`, `;`, `<` or `>`, so HTML around a setting is never part of it. After `:` (which prose uses too) the value must have letters together with a digit or a symbol, or be 20 characters or more, so "Credentials: regenerate" and "Docs: id.atlassian.com" are not reported. Types (`password: string`), references (`this.token`) and calls (`getPassword()`) are left out. The price: "1Password" after a colon is reported. Two more rules use the same test of a random-looking value: a secret told in a sentence ("the admin password for the router is ...") and the password column of a text table.
 
 ## D-9. Test values are built when tests run
 

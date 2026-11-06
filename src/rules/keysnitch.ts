@@ -287,6 +287,36 @@ export const keysnitchRules: readonly RuleSpec[] = [
     rotate: SETTING_ROTATE,
   },
   {
+    // "The admin password for the router is KKHZzpyn2026!". The value must
+    // look random, so "the password is required" is not reported.
+    id: "generic-secret-in-sentence",
+    vendor: "Generic",
+    label: "Secret told in a sentence",
+    severity: "medium",
+    keywords: ["password", "passwd", "passphrase", "passcode", "pwd", "secret", "token", "api key"],
+    pattern: String.raw`(?i)\b(?:password|passwd|passphrase|passcode|pwd|secret|token|api key)\b[^.\n:=!?]{0,40}?\b(?:is|was)[ \t]{1,5}["'\x60]?([^\s"'\x60,;<>]{6,200})`,
+    allow: SETTING_ALLOW,
+    validate: looksRandom,
+    generic: true,
+    aliases: SETTING_ALIASES,
+    rotate: SETTING_ROTATE,
+  },
+  {
+    // A text table whose last column is the password:
+    // "Service | User | Password" and below it "Grafana | admin | Qk83VkkxFAO6".
+    id: "generic-secret-in-table",
+    vendor: "Generic",
+    label: "Secret in the password column of a table",
+    severity: "medium",
+    keywords: ["password", "passwd", "pwd", "passcode", "secret", "token", "api key", "api-key", "api_key"],
+    pattern: String.raw`(?i)\|[ \t]{0,10}(?:password|passwd|pwd|passcode|secret|token|api[ _-]?key)[ \t]{0,10}\|?[ \t]{0,10}\r?\n(?:[ \t|:-]{3,300}\r?\n)?[^\n]{0,300}?\|[ \t]{0,10}([^\s|]{6,200})[ \t]{0,10}\|?[ \t]{0,10}(?=[\r\n]|$)`,
+    allow: SETTING_ALLOW,
+    validate: looksRandom,
+    generic: true,
+    aliases: SETTING_ALIASES,
+    rotate: SETTING_ROTATE,
+  },
+  {
     id: "generic-env-secret",
     vendor: "Generic",
     label: "Secret in an environment variable export",

@@ -40,6 +40,8 @@ function hasKeyword(rule: Rule, text: string): boolean {
 const FIXED_EXAMPLES: Readonly<Record<string, string>> = {
   // "alice:wonderland12" in Base64.
   "generic-basic-auth": "Basic YWxpY2U6d29uZGVybGFuZDEy",
+  // Random text rarely puts a word boundary before "is".
+  "generic-secret-in-sentence": "The admin password for the router is KKHZzpyn2026!",
 };
 
 /** An example of the rule that the rule itself reports, with the reported value. */

@@ -2,7 +2,7 @@
 
 Find leaked API keys, tokens and passwords in any text.
 
-keysnitch reads a string and tells you where the credentials are: an Atlassian API token in a Jira comment, a Google API key in a URL, a database password in a pasted `.env` file. It has 248 built-in rules from 129 companies and projects, including every rule of gitleaks v8.30.1 that applies to text.
+keysnitch reads a string and tells you where the credentials are: an Atlassian API token in a Jira comment, a Google API key in a URL, a database password in a pasted `.env` file. It has 250 built-in rules from 129 companies and projects, including every rule of gitleaks v8.30.1 that applies to text.
 
 - **Zero dependencies.** Nothing to audit but this package.
 - **Safe on untrusted input.** Every rule passes a safety check before it can run, so no text can make a scan slow (no ReDoS). Scans stay linear in the length of the text.
@@ -110,7 +110,7 @@ scan(text, { matchers: [custom] });
 
 - every rule of gitleaks v8.30.1 for text (220 of 222; the two left out match file names or guess by entropy), several of them made wider or fixed: see `tools/gitleaks/overrides.ts` and `tools/gitleaks/also.ts`;
 - keysnitch's own rules for keys gitleaks misses: Atlassian access tokens and Bitbucket app passwords, Azure Storage keys and SAS signatures, Google OAuth secrets, Groq, xAI, Replicate, Docker Hub, Figma, Supabase and more;
-- passwords in URLs, secrets in settings and `.env` files, `Authorization: Bearer` and `Basic` headers, `curl -u` and `docker login -p`.
+- passwords in URLs, secrets in settings and `.env` files, a password told in a sentence or in the password column of a table, `Authorization: Bearer` and `Basic` headers, `curl -u` and `docker login -p`.
 
 Documentation placeholders (`your_api_key`, `${TOKEN}`, `<secret>`, `xxxx`) are never reported.
 

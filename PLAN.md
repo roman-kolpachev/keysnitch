@@ -2,7 +2,7 @@
 
 ## Status
 
-- 2026-11-06, v0.1.0 (branch `feat/v0.1.0`): pattern parser, safety check and compiler; `scan`, `mask`, `findRules`, `vendors`, `defineRule`, custom matchers; 248 built-in rules (220 from gitleaks v8.30.1, 28 own); parity with the website checker; contract tests for every rule; repository checks. Private repository, not published.
+- 2026-11-06, v0.1.0 (branch `feat/v0.1.0`): pattern parser, safety check and compiler; `scan`, `mask`, `findRules`, `vendors`, `defineRule`, custom matchers; 250 built-in rules (220 from gitleaks v8.30.1, 30 own); parity with the website checker; contract tests for every rule; repository checks. Private repository, not published.
 
 ## Next
 

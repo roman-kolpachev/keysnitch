@@ -260,6 +260,25 @@ describe("secrets in settings", () => {
     assertFound("export DB_PASSWORD=s3cr3tPassw0rd\n", "s3cr3tPassw0rd");
   });
 
+  it("finds a password told in a sentence, and leaves plain sentences alone", () => {
+    assertFound("The admin password for the router is KKHZzpyn2026! - change it", "KKHZzpyn2026!");
+    assertFound("FYI the token is Q8w2Er4Ty6Ui, rotate it.", "Q8w2Er4Ty6Ui");
+    for (const text of [
+      "The password is required for every login.",
+      "The token is valid until Friday.",
+      "Your password is case-sensitive.",
+      "The secret is out: we ship on Monday.",
+    ]) {
+      assertNothing(text);
+    }
+  });
+
+  it("finds a password in the last column of a text table", () => {
+    assertFound("Service | User | Password\nGrafana | admin | Qk83VkkxFAO6", "Qk83VkkxFAO6");
+    assertFound("| Service | Password |\n| --- | --- |\n| Grafana | Qk83VkkxFAO6 |\n", "Qk83VkkxFAO6");
+    assertNothing("| Service | Password |\n| --- | --- |\n| Grafana | see the vault |\n");
+  });
+
   it("ends a value at markup, so HTML around a setting is never part of it", () => {
     assertFound("<p>password=hunter2value</p><p>next</p>", "hunter2value");
     assertFound("<td>secret: s3cr3t-value</td>", "s3cr3t-value");
