@@ -114,6 +114,19 @@ scan(text, { matchers: [custom] });
 
 Documentation placeholders (`your_api_key`, `${TOKEN}`, `<secret>`, `xxxx`) are never reported.
 
+## How it compares
+
+A corpus of 1,400 leaks in 28 shapes (random values in the vendors' published formats, 1 Nov 2026):
+
+| Scanner                                                    | Found |
+| ---------------------------------------------------------- | ----: |
+| secretlint, recommended preset (as Secret Sentinel ran it) |   898 |
+| keysnitch 0.1.0                                            | 1,391 |
+
+The 9 it misses are passwords made only of letters in a table column. keysnitch leaves those out on purpose, so that a word like "regenerate" after "Credentials:" is not reported (docs/decisions.md, D-8).
+
+Compared with gitleaks: keysnitch has every gitleaks rule for text, so it finds at least what gitleaks finds by pattern. gitleaks scans git history and files; keysnitch scans a string you give it, in any JavaScript runtime.
+
 ## Limits
 
 keysnitch is a safety net, not a guarantee. It finds credentials with a known shape. It does not guess random strings by entropy, so a password with no name next to it, or a token of an unknown format, is not found. Text only: no files, no archives, no images.
