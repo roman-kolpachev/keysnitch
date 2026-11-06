@@ -4,6 +4,12 @@ All notable changes to this project are written here. The format follows [Keep a
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-06
+
+### Changed
+
+- README: a link to try keysnitch in the browser (the free API key leak checker on simplify-software.org) and the apps that use it in production. No change to the code.
+
 ## [0.1.1] - 2026-11-06
 
 ### Fixed
@@ -24,6 +30,7 @@ First version.
 - `findRules()` and `vendors()` to find rules by company, name or alias.
 - `mask()` to show a value safely.
 
-[Unreleased]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/roman-kolpachev/keysnitch/releases/tag/v0.1.0
