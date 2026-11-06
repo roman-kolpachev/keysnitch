@@ -4,6 +4,13 @@ All notable changes to this project are written here. The format follows [Keep a
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-06
+
+### Fixed
+
+- `jwt-base64` no longer takes the first word of the next line. A Base64 JWT without `=` padding ran over the line break, so a redaction removed text after it (`kind` in a Kubernetes Secret). A JWT wrapped at 76 or 64 characters per line is still covered line by line.
+- A long value in a setting, an export, a sentence, a table, `docker login -p` or `curl -u` is covered whole. Values were cut at 200 characters, so the rest of a longer secret stayed readable after a redaction. Now a value is covered whole up to 2,048 characters after `=` (4,096 for the other rules); a longer one is not reported rather than cut.
+
 ## [0.1.0] - 2026-11-06
 
 First version.
@@ -17,5 +24,6 @@ First version.
 - `findRules()` and `vendors()` to find rules by company, name or alias.
 - `mask()` to show a value safely.
 
-[Unreleased]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/roman-kolpachev/keysnitch/releases/tag/v0.1.0

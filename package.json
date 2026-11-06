@@ -1,6 +1,6 @@
 {
   "name": "keysnitch",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Find leaked API keys, tokens and passwords in any text. Zero dependencies, linear time rules, safe to run on untrusted input.",
   "keywords": [
     "secrets",

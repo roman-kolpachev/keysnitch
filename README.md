@@ -120,14 +120,16 @@ Documentation placeholders (`your_api_key`, `${TOKEN}`, `<secret>`, `xxxx`) are 
 
 ## How it compares
 
-A corpus of 1,400 leaks in 28 shapes (random values in the vendors' published formats, 1 Nov 2026):
+We wrote 1,400 fake leaks in 28 shapes, the way people paste them into tickets and wiki pages: an AWS key pair in a comment, a GitHub token in a runbook, a `.env` line, `curl -u`, a Basic auth header, a password in a table or in a sentence. Every value is random and has the vendor's published format (1 Nov 2026).
 
-| Scanner                                                    | Found |
-| ---------------------------------------------------------- | ----: |
-| secretlint, recommended preset (as Secret Sentinel ran it) |   898 |
-| keysnitch 0.1.0                                            | 1,391 |
+| Scanner                                                                       | Found |
+| ----------------------------------------------------------------------------- | ----: |
+| secretlint 13.0.4, recommended rules, plus two rules for JWTs and AWS key IDs |   898 |
+| keysnitch 0.1.1                                                               | 1,392 |
 
-The 9 it misses are passwords made only of letters in a table column. keysnitch leaves those out on purpose, so that a word like "regenerate" after "Credentials:" is not reported (docs/decisions.md, D-8).
+Read this with care: keysnitch was written after this test, by people who knew its 28 shapes, so its count is not a blind result. Most of the difference is passwords with no prefix (a `.env` line, `curl -u`, a Basic header, a table, a sentence), which secretlint's recommended rules do not look for, and Atlassian, Google, Telegram and Azure Storage keys.
+
+The 8 keysnitch misses are passwords made only of letters in a table column. It leaves those out on purpose, so that a word like "regenerate" after "Credentials:" is not reported (docs/decisions.md, D-8).
 
 Compared with gitleaks: keysnitch has every gitleaks rule for text, so it finds at least what gitleaks finds by pattern. gitleaks scans git history and files; keysnitch scans a string you give it, in any JavaScript runtime.
 
