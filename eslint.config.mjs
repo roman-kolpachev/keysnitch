@@ -11,7 +11,14 @@ import tseslint from "typescript-eslint";
 //   only in src/pattern/compile.ts.
 export default tseslint.config(
   {
-    ignores: ["node_modules/**", "dist/**", "coverage/**", "reports/**", ".stryker-tmp/**"],
+    ignores: [
+      "node_modules/**",
+      "dist/**",
+      "coverage/**",
+      "reports/**",
+      ".stryker-tmp/**",
+      "test/consumer/**",
+    ],
   },
   {
     linterOptions: {

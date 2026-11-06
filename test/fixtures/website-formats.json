@@ -1,0 +1,284 @@
+[
+  {
+    "id": "private-key",
+    "name": "Private key (PEM)",
+    "source": "-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY(?: BLOCK)?-----",
+    "flags": "g"
+  },
+  {
+    "id": "aws-access-key",
+    "name": "AWS access key ID",
+    "source": "\\b(?:AKIA|ASIA)[0-9A-Z]{16}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "github-token",
+    "name": "GitHub token",
+    "source": "\\b(?:gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{60,})\\b",
+    "flags": "g"
+  },
+  {
+    "id": "stripe-key",
+    "name": "Stripe live secret key",
+    "source": "\\b(?:sk|rk)_live_[A-Za-z0-9]{20,}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "anthropic-key",
+    "name": "Anthropic API key",
+    "source": "\\bsk-ant-[A-Za-z0-9_-]{20,}",
+    "flags": "g"
+  },
+  {
+    "id": "openai-key",
+    "name": "OpenAI API key",
+    "source": "\\bsk-(?:proj-|svcacct-|admin-)?[A-Za-z0-9_-]{32,}",
+    "flags": "g"
+  },
+  {
+    "id": "google-api-key",
+    "name": "Google API key",
+    "source": "\\bAIza[0-9A-Za-z_-]{35}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "slack-token",
+    "name": "Slack token",
+    "source": "\\bxox[abposr]-[A-Za-z0-9-]{10,}",
+    "flags": "g"
+  },
+  {
+    "id": "slack-webhook",
+    "name": "Slack webhook URL",
+    "source": "https:\\/\\/hooks\\.slack\\.com\\/services\\/[A-Za-z0-9/]{20,}",
+    "flags": "g"
+  },
+  {
+    "id": "atlassian-token",
+    "name": "Atlassian API token",
+    "source": "\\bATATT3[A-Za-z0-9_=-]{100,}",
+    "flags": "g"
+  },
+  {
+    "id": "npm-token",
+    "name": "npm access token",
+    "source": "\\bnpm_[A-Za-z0-9]{36}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "sendgrid-key",
+    "name": "SendGrid API key",
+    "source": "\\bSG\\.[A-Za-z0-9_-]{22}\\.[A-Za-z0-9_-]{43}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "connection-string",
+    "name": "Database URL with a password",
+    "source": "\\b(?:postgres(?:ql)?|mysql|mongodb(?:\\+srv)?|redis|amqp):\\/\\/[^\\s:/@]+:[^\\s@]{3,}@[^\\s]+",
+    "flags": "g"
+  },
+  {
+    "id": "gitlab-token",
+    "name": "GitLab personal access token",
+    "source": "\\bglpat-[A-Za-z0-9_-]{20,}",
+    "flags": "g"
+  },
+  {
+    "id": "azure-storage-key",
+    "name": "Azure Storage account key",
+    "source": "AccountKey=[A-Za-z0-9+/]{86}==",
+    "flags": "g"
+  },
+  {
+    "id": "azure-client-secret",
+    "name": "Microsoft Entra (Azure AD) client secret",
+    "source": "\\b[A-Za-z0-9_~.-]{3}\\dQ~[A-Za-z0-9_~.-]{31,34}",
+    "flags": "g"
+  },
+  {
+    "id": "google-oauth-secret",
+    "name": "Google OAuth client secret",
+    "source": "\\bGOCSPX-[A-Za-z0-9_-]{28}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "gcp-service-account",
+    "name": "Google Cloud service account key (JSON)",
+    "source": "\"type\"\\s*:\\s*\"service_account\"",
+    "flags": "g"
+  },
+  {
+    "id": "digitalocean-token",
+    "name": "DigitalOcean token",
+    "source": "\\bdo[opr]_v1_[a-f0-9]{64}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "huggingface-token",
+    "name": "Hugging Face token",
+    "source": "\\bhf_[A-Za-z0-9]{34,}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "groq-key",
+    "name": "Groq API key",
+    "source": "\\bgsk_[A-Za-z0-9]{48,}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "replicate-token",
+    "name": "Replicate API token",
+    "source": "\\br8_[A-Za-z0-9]{37}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "perplexity-key",
+    "name": "Perplexity API key",
+    "source": "\\bpplx-[A-Za-z0-9]{40,}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "xai-key",
+    "name": "xAI API key",
+    "source": "\\bxai-[A-Za-z0-9]{70,}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "twilio-key",
+    "name": "Twilio API key",
+    "source": "\\bSK[0-9a-f]{32}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "mailgun-key",
+    "name": "Mailgun API key",
+    "source": "\\bkey-[0-9a-f]{32}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "shopify-token",
+    "name": "Shopify access token",
+    "source": "\\bshp(?:at|ca|pa|ss)_[a-fA-F0-9]{32}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "square-token",
+    "name": "Square access token",
+    "source": "\\b(?:EAAA[A-Za-z0-9_-]{60}|sq0atp-[A-Za-z0-9_-]{22}|sq0csp-[A-Za-z0-9_-]{43})\\b",
+    "flags": "g"
+  },
+  {
+    "id": "docker-hub-token",
+    "name": "Docker Hub access token",
+    "source": "\\bdckr_pat_[A-Za-z0-9_-]{27,}",
+    "flags": "g"
+  },
+  {
+    "id": "pypi-token",
+    "name": "PyPI upload token",
+    "source": "\\bpypi-AgEIcHlwaS5vcmc[A-Za-z0-9_-]{50,}",
+    "flags": "g"
+  },
+  {
+    "id": "vault-token",
+    "name": "HashiCorp Vault token",
+    "source": "\\bhv[sb]\\.[A-Za-z0-9_-]{24,}",
+    "flags": "g"
+  },
+  {
+    "id": "doppler-token",
+    "name": "Doppler token",
+    "source": "\\bdp\\.(?:st|ct|sa|scim|audit|pt)\\.[A-Za-z0-9_-]{40,}",
+    "flags": "g"
+  },
+  {
+    "id": "linear-key",
+    "name": "Linear API key",
+    "source": "\\blin_api_[A-Za-z0-9]{40}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "notion-token",
+    "name": "Notion integration token",
+    "source": "\\b(?:ntn_[A-Za-z0-9]{40,}|secret_[A-Za-z0-9]{43})\\b",
+    "flags": "g"
+  },
+  {
+    "id": "figma-token",
+    "name": "Figma personal access token",
+    "source": "\\bfigd_[A-Za-z0-9_-]{40,}",
+    "flags": "g"
+  },
+  {
+    "id": "postman-key",
+    "name": "Postman API key",
+    "source": "\\bPMAK-[a-f0-9]{24}-[a-f0-9]{34}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "sentry-token",
+    "name": "Sentry auth token",
+    "source": "\\bsntr[yu]s_[A-Za-z0-9_=+/.-]{40,}",
+    "flags": "g"
+  },
+  {
+    "id": "newrelic-key",
+    "name": "New Relic user API key",
+    "source": "\\bNRAK-[A-Z0-9]{27}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "grafana-token",
+    "name": "Grafana token",
+    "source": "\\b(?:glsa_[A-Za-z0-9]{32}_[a-f0-9]{8}|glc_[A-Za-z0-9+/]{32,}={0,2})",
+    "flags": "g"
+  },
+  {
+    "id": "supabase-token",
+    "name": "Supabase access token",
+    "source": "\\bsbp_[a-f0-9]{40}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "mapbox-secret",
+    "name": "Mapbox secret token",
+    "source": "\\bsk\\.eyJ[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,}",
+    "flags": "g"
+  },
+  {
+    "id": "telegram-bot-token",
+    "name": "Telegram bot token",
+    "source": "\\b\\d{8,10}:AA[A-Za-z0-9_-]{33}\\b",
+    "flags": "g"
+  },
+  {
+    "id": "discord-webhook",
+    "name": "Discord webhook URL",
+    "source": "https:\\/\\/(?:ptb\\.|canary\\.)?discord(?:app)?\\.com\\/api\\/webhooks\\/\\d+\\/[A-Za-z0-9_-]{60,}",
+    "flags": "g"
+  },
+  {
+    "id": "teams-webhook",
+    "name": "Microsoft Teams webhook URL",
+    "source": "https:\\/\\/[a-z0-9-]+\\.webhook\\.office\\.com\\/webhookb2\\/[A-Za-z0-9@/-]{40,}",
+    "flags": "g"
+  },
+  {
+    "id": "url-credentials",
+    "name": "URL with a username and password",
+    "source": "\\bhttps?:\\/\\/[^\\s:/@]+:[^\\s@/]{3,}@[^\\s]+",
+    "flags": "g"
+  },
+  {
+    "id": "jwt",
+    "name": "JSON Web Token",
+    "source": "\\beyJ[A-Za-z0-9_-]{10,}\\.eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}",
+    "flags": "g"
+  },
+  {
+    "id": "password-assignment",
+    "name": "Password or secret in a setting",
+    "source": "\\b(?:password|passwd|pwd|secret|client_secret|api_?key|access_?token|auth_?token)\\s*[:=]\\s*[\"']?(?!\\$\\{|<|\\*{3})[^\\s\"',;]{8,}",
+    "flags": "gi"
+  }
+]
