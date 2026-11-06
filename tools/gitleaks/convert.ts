@@ -11,8 +11,12 @@ import { MAX_REPEAT } from "../../src/pattern/check.ts";
 const LEADING_CONTEXT = "[\\w.-]{0,50}?";
 
 export function stripLeadingContext(source: string): string {
-  if (source.startsWith(`(?i)${LEADING_CONTEXT}`)) return `(?i)${source.slice(4 + LEADING_CONTEXT.length)}`;
-  if (source.startsWith(LEADING_CONTEXT)) return source.slice(LEADING_CONTEXT.length);
+  if (source.startsWith(`(?i)${LEADING_CONTEXT}`)) {
+    return `(?i)${source.slice(4 + LEADING_CONTEXT.length)}`;
+  }
+  if (source.startsWith(LEADING_CONTEXT)) {
+    return source.slice(LEADING_CONTEXT.length);
+  }
   return source;
 }
 
@@ -37,7 +41,9 @@ export function boundRepeats(source: string, cap: number = MAX_REPEAT): string {
       }
       const atStart =
         index === classStart + 1 || (index === classStart + 2 && source.charAt(classStart + 1) === "^");
-      if (c === "]" && !atStart) inClass = false;
+      if (c === "]" && !atStart) {
+        inClass = false;
+      }
       out += c;
       continue;
     }

@@ -12,8 +12,12 @@ if (process.argv.includes("--report")) {
   process.stdout.write(
     `${String(specs.length)} converted, ${String(skipped.length)} skipped, ${String(failures.length)} failing\n`,
   );
-  for (const failure of failures) process.stdout.write(`${failure}\n`);
-  for (const skip of skipped) process.stdout.write(`skipped ${skip.id}: ${skip.reason}\n`);
+  for (const failure of failures) {
+    process.stdout.write(`${failure}\n`);
+  }
+  for (const skip of skipped) {
+    process.stdout.write(`skipped ${skip.id}: ${skip.reason}\n`);
+  }
 } else {
   if (failures.length > 0) {
     process.stderr.write(`${failures.join("\n")}\n`);

@@ -371,15 +371,21 @@ const SOFT_SYMBOLS = ".-_/:";
  * other than . - _ / and :.
  */
 export function looksRandom(value: string): boolean {
-  if (value.length >= 20) return true;
+  if (value.length >= 20) {
+    return true;
+  }
   let letter = false;
   let digit = false;
   let symbol = false;
   for (let index = 0; index < value.length; index += 1) {
     const c = value.charCodeAt(index);
-    if ((c >= 0x61 && c <= 0x7a) || (c >= 0x41 && c <= 0x5a)) letter = true;
-    else if (c >= 0x30 && c <= 0x39) digit = true;
-    else if (!SOFT_SYMBOLS.includes(value.charAt(index))) symbol = true;
+    if ((c >= 0x61 && c <= 0x7a) || (c >= 0x41 && c <= 0x5a)) {
+      letter = true;
+    } else if (c >= 0x30 && c <= 0x39) {
+      digit = true;
+    } else if (!SOFT_SYMBOLS.includes(value.charAt(index))) {
+      symbol = true;
+    }
   }
   return letter && (digit || symbol);
 }
@@ -388,14 +394,18 @@ const BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 
 /** Decodes standard Base64 into Latin-1 text, or returns undefined. No dependencies, no atob. */
 export function decodeBase64(value: string): string | undefined {
-  if (value.length % 4 !== 0) return undefined;
+  if (value.length % 4 !== 0) {
+    return undefined;
+  }
   const body = value.endsWith("==") ? value.slice(0, -2) : value.endsWith("=") ? value.slice(0, -1) : value;
   let bits = 0;
   let buffer = 0;
   let out = "";
   for (let index = 0; index < body.length; index += 1) {
     const digit = BASE64.indexOf(body.charAt(index));
-    if (digit === -1) return undefined;
+    if (digit === -1) {
+      return undefined;
+    }
     buffer = (buffer << 6) | digit;
     bits += 6;
     if (bits >= 8) {
@@ -409,10 +419,14 @@ export function decodeBase64(value: string): string | undefined {
 /** True when a Base64 value decodes to printable "user:secret" with a secret of 3 or more characters. */
 export function isEncodedUserAndSecret(value: string): boolean {
   const decoded = decodeBase64(value);
-  if (decoded === undefined) return false;
+  if (decoded === undefined) {
+    return false;
+  }
   for (let index = 0; index < decoded.length; index += 1) {
     const unit = decoded.charCodeAt(index);
-    if (unit < 0x20 || unit > 0x7e) return false;
+    if (unit < 0x20 || unit > 0x7e) {
+      return false;
+    }
   }
   const colon = decoded.indexOf(":");
   return colon > 0 && decoded.length - colon - 1 >= 3;

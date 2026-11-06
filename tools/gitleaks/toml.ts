@@ -43,11 +43,14 @@ class Reader {
   skipSpaceAndComments(): void {
     for (;;) {
       const c = this.text[this.position];
-      if (c === " " || c === "\t" || c === "\r" || c === "\n") this.position += 1;
-      else if (c === "#") {
+      if (c === " " || c === "\t" || c === "\r" || c === "\n") {
+        this.position += 1;
+      } else if (c === "#") {
         const end = this.text.indexOf("\n", this.position);
         this.position = end === -1 ? this.text.length : end;
-      } else return;
+      } else {
+        return;
+      }
     }
   }
 
@@ -65,26 +68,40 @@ class Reader {
 
   readKey(): string {
     const start = this.position;
-    while (/[A-Za-z0-9_]/u.test(this.text[this.position] ?? "")) this.position += 1;
+    while (/[A-Za-z0-9_]/u.test(this.text[this.position] ?? "")) {
+      this.position += 1;
+    }
     const key = this.text.slice(start, this.position);
-    if (key === "") throw this.error("expected a key");
+    if (key === "") {
+      throw this.error("expected a key");
+    }
     this.skipInline();
-    if (this.text[this.position] !== "=") throw this.error(`expected = after ${key}`);
+    if (this.text[this.position] !== "=") {
+      throw this.error(`expected = after ${key}`);
+    }
     this.position += 1;
     this.skipInline();
     return key;
   }
 
   private skipInline(): void {
-    while (this.text[this.position] === " " || this.text[this.position] === "\t") this.position += 1;
+    while (this.text[this.position] === " " || this.text[this.position] === "\t") {
+      this.position += 1;
+    }
   }
 
   readValue(): Value {
     const c = this.text[this.position];
-    if (c === "[") return this.readArray();
-    if (c === "'" || c === '"') return this.readString();
+    if (c === "[") {
+      return this.readArray();
+    }
+    if (c === "'" || c === '"') {
+      return this.readString();
+    }
     const match = /^-?\d+(?:\.\d+)?/u.exec(this.text.slice(this.position));
-    if (match === null) throw this.error("unknown value");
+    if (match === null) {
+      throw this.error("unknown value");
+    }
     this.position += match[0].length;
     return Number(match[0]);
   }
@@ -92,14 +109,18 @@ class Reader {
   private readString(): string {
     if (this.text.startsWith("'''", this.position)) {
       const end = this.text.indexOf("'''", this.position + 3);
-      if (end === -1) throw this.error("unclosed ''' string");
+      if (end === -1) {
+        throw this.error("unclosed ''' string");
+      }
       const value = this.text.slice(this.position + 3, end);
       this.position = end + 3;
       return value;
     }
     if (this.text[this.position] === "'") {
       const end = this.text.indexOf("'", this.position + 1);
-      if (end === -1) throw this.error("unclosed ' string");
+      if (end === -1) {
+        throw this.error("unclosed ' string");
+      }
       const value = this.text.slice(this.position + 1, end);
       this.position = end + 1;
       return value;
@@ -108,15 +129,21 @@ class Reader {
     this.position += 1;
     for (;;) {
       const ch = this.text[this.position];
-      if (ch === undefined || ch === "\n") throw this.error('unclosed " string');
+      if (ch === undefined || ch === "\n") {
+        throw this.error('unclosed " string');
+      }
       this.position += 1;
-      if (ch === '"') return value;
+      if (ch === '"') {
+        return value;
+      }
       if (ch === "\\") {
         const next = this.text[this.position] ?? "";
         this.position += 1;
         const escapes: Record<string, string> = { '"': '"', "\\": "\\", n: "\n", t: "\t", r: "\r" };
         const replacement = escapes[next];
-        if (replacement === undefined) throw this.error(`unknown escape \\${next}`);
+        if (replacement === undefined) {
+          throw this.error(`unknown escape \\${next}`);
+        }
         value += replacement;
       } else {
         value += ch;
@@ -134,30 +161,47 @@ class Reader {
         return items;
       }
       const item = this.readValue();
-      if (typeof item !== "string") throw this.error("arrays hold strings only");
+      if (typeof item !== "string") {
+        throw this.error("arrays hold strings only");
+      }
       items.push(item);
       this.skipSpaceAndComments();
-      if (this.text[this.position] === ",") this.position += 1;
-      else if (this.text[this.position] !== "]") throw this.error("expected , or ]");
+      if (this.text[this.position] === ",") {
+        this.position += 1;
+      } else if (this.text[this.position] !== "]") {
+        throw this.error("expected , or ]");
+      }
     }
   }
 }
 
 function asString(value: Value | undefined, key: string): string | undefined {
-  if (value === undefined) return undefined;
-  if (typeof value !== "string") throw new Error(`${key} must be a string`);
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "string") {
+    throw new Error(`${key} must be a string`);
+  }
   return value;
 }
 
 function asStrings(value: Value | undefined, key: string): string[] {
-  if (value === undefined) return [];
-  if (!Array.isArray(value)) throw new Error(`${key} must be an array`);
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value)) {
+    throw new Error(`${key} must be an array`);
+  }
   return value;
 }
 
 function asNumber(value: Value | undefined, key: string): number | undefined {
-  if (value === undefined) return undefined;
-  if (typeof value !== "number") throw new Error(`${key} must be a number`);
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "number") {
+    throw new Error(`${key} must be a number`);
+  }
   return value;
 }
 
@@ -172,9 +216,13 @@ export function parseGitleaksToml(text: string): GitleaksRule[] {
   let rule: Map<string, Value> | undefined;
   let allowlists: Map<string, Value>[] = [];
   const finishRule = (): void => {
-    if (rule === undefined) return;
+    if (rule === undefined) {
+      return;
+    }
     const id = asString(rule.get("id"), "id");
-    if (id === undefined) throw new Error("a rule without an id");
+    if (id === undefined) {
+      throw new Error("a rule without an id");
+    }
     const regex = asString(rule.get("regex"), "regex");
     const path = asString(rule.get("path"), "path");
     const entropy = asNumber(rule.get("entropy"), "entropy");
@@ -202,7 +250,9 @@ export function parseGitleaksToml(text: string): GitleaksRule[] {
   };
   for (;;) {
     reader.skipSpaceAndComments();
-    if (reader.done) break;
+    if (reader.done) {
+      break;
+    }
     const line = reader.peekLine();
     if (line.startsWith("[")) {
       reader.readLine();
@@ -211,7 +261,9 @@ export function parseGitleaksToml(text: string): GitleaksRule[] {
         rule = new Map();
         section = "rule";
       } else if (line === "[[rules.allowlists]]") {
-        if (rule === undefined) throw new Error("an allowlist outside a rule");
+        if (rule === undefined) {
+          throw new Error("an allowlist outside a rule");
+        }
         allowlists.push(new Map());
         section = "allowlist";
       } else if (line === "[allowlist]" || line === "[[allowlists]]") {
@@ -225,10 +277,14 @@ export function parseGitleaksToml(text: string): GitleaksRule[] {
     const key = reader.readKey();
     const value = reader.readValue();
     if (section === "rule" && rule !== undefined) {
-      if (!RULE_KEYS.has(key)) throw new Error(`unknown rule key ${key}`);
+      if (!RULE_KEYS.has(key)) {
+        throw new Error(`unknown rule key ${key}`);
+      }
       rule.set(key, value);
     } else if (section === "allowlist") {
-      if (!ALLOWLIST_KEYS.has(key)) throw new Error(`unknown allowlist key ${key}`);
+      if (!ALLOWLIST_KEYS.has(key)) {
+        throw new Error(`unknown allowlist key ${key}`);
+      }
       allowlists.at(-1)?.set(key, value);
     }
   }

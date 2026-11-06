@@ -216,16 +216,21 @@ export function vendorOf(id: string): { vendor: string; slug: string } {
   let best: readonly [string, string] | undefined;
   for (const entry of VENDORS) {
     const [slug] = entry;
-    if ((id === slug || id.startsWith(`${slug}-`)) && (best === undefined || slug.length > best[0].length))
+    if ((id === slug || id.startsWith(`${slug}-`)) && (best === undefined || slug.length > best[0].length)) {
       best = entry;
+    }
   }
-  if (best === undefined) throw new Error(`no vendor for gitleaks rule ${id}`);
+  if (best === undefined) {
+    throw new Error(`no vendor for gitleaks rule ${id}`);
+  }
   return { slug: best[0], vendor: best[1] };
 }
 
 export function labelOf(id: string): string {
   const named = LABELS[id];
-  if (named !== undefined) return named;
+  if (named !== undefined) {
+    return named;
+  }
   const { slug, vendor } = vendorOf(id);
   const rest = id
     .slice(slug.length + 1)
@@ -239,8 +244,11 @@ export function labelOf(id: string): string {
 export function severityOf(id: string): Severity {
   const low =
     id.endsWith("-id") || id.includes("-pub-") || id.endsWith("-public-key") || id.endsWith("-pub-key");
-  if (low) return "low";
-  if (id === "aws-access-token" || id === "jwt" || id === "jwt-base64" || id === "alibaba-access-key-id")
+  if (low) {
+    return "low";
+  }
+  if (id === "aws-access-token" || id === "jwt" || id === "jwt-base64" || id === "alibaba-access-key-id") {
     return "medium";
+  }
   return "high";
 }

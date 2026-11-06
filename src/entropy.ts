@@ -1,6 +1,8 @@
 /** Shannon entropy of a string in bits per UTF-16 code unit. */
 export function entropy(value: string): number {
-  if (value.length === 0) return 0;
+  if (value.length === 0) {
+    return 0;
+  }
   const counts = new Map<number, number>();
   for (let index = 0; index < value.length; index += 1) {
     const unit = value.charCodeAt(index);

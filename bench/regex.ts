@@ -14,7 +14,9 @@ const text = `${"the quick brown fox jumps over the lazy dog issue PAY-17 deploy
 function time(run: () => void): number {
   run();
   const started = performance.now();
-  for (let index = 0; index < 5; index += 1) run();
+  for (let index = 0; index < 5; index += 1) {
+    run();
+  }
   return (performance.now() - started) / 5;
 }
 
@@ -40,7 +42,9 @@ try {
   // A variable name keeps TypeScript from looking for the package's types.
   const name = "re2js";
   const loaded: unknown = await import(name);
-  if (isRe2(loaded)) re2 = loaded;
+  if (isRe2(loaded)) {
+    re2 = loaded;
+  }
 } catch {
   re2 = undefined;
 }
@@ -51,7 +55,9 @@ for (const [name, source, flags] of shapes) {
   const native = new RegExp(source, flags);
   const nativeMs = time(() => {
     const count = [...text.matchAll(native)].length;
-    if (count < 0) throw new Error("unreachable");
+    if (count < 0) {
+      throw new Error("unreachable");
+    }
   });
   let re2Cell = "not installed";
   let ratio = "";
@@ -60,8 +66,12 @@ for (const [name, source, flags] of shapes) {
     const re2Ms = time(() => {
       const matcher = compiled.matcher(text);
       let found = 0;
-      while (matcher.find()) found += 1;
-      if (found < 0) throw new Error("unreachable");
+      while (matcher.find()) {
+        found += 1;
+      }
+      if (found < 0) {
+        throw new Error("unreachable");
+      }
     });
     re2Cell = `${re2Ms.toFixed(1)} ms`;
     ratio = `x${(re2Ms / nativeMs).toFixed(0)}`;

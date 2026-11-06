@@ -27,8 +27,12 @@ function allowOf(rule: GitleaksRule): string[] {
 
 function convert(rule: GitleaksRule): RuleSpec | string {
   const skipped = SKIPPED[rule.id];
-  if (skipped !== undefined) return skipped;
-  if (rule.regex === undefined) return "no pattern (a file path rule)";
+  if (skipped !== undefined) {
+    return skipped;
+  }
+  if (rule.regex === undefined) {
+    return "no pattern (a file path rule)";
+  }
   const override = OVERRIDES[rule.id];
   const base = override?.pattern ?? boundRepeats(stripLeadingContext(rule.regex));
   const also = ALSO[rule.id];

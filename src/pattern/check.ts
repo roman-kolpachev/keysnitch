@@ -67,7 +67,9 @@ function maxLength(node: Node): number | null {
 function sumOrNull(values: readonly (number | null)[]): number | null {
   let total = 0;
   for (const value of values) {
-    if (value === null) return null;
+    if (value === null) {
+      return null;
+    }
     total += value;
   }
   return total;
@@ -76,7 +78,9 @@ function sumOrNull(values: readonly (number | null)[]): number | null {
 function maxOrNull(values: readonly (number | null)[]): number | null {
   let best = 0;
   for (const value of values) {
-    if (value === null) return null;
+    if (value === null) {
+      return null;
+    }
     best = Math.max(best, value);
   }
   return best;
@@ -116,7 +120,9 @@ function edge(node: Node, order: (items: readonly Node[]) => readonly Node[]): C
       let set: CharSet = [];
       for (const item of order(node.items)) {
         set = union(set, edge(item, order));
-        if (!isNullable(item)) break;
+        if (!isNullable(item)) {
+          break;
+        }
       }
       return set;
     }
@@ -166,7 +172,9 @@ function sequenceCost(items: readonly Node[]): number {
   let chainLast: CharSet = [];
   items.forEach((item, index) => {
     total += cost(item);
-    if (inChain) product *= ways(item);
+    if (inChain) {
+      product *= ways(item);
+    }
     const next = firstOfRest(items, index + 1);
     const trades = isVariable(item) && intersects(last(item), next);
     // An optional item lets earlier items meet later ones, but only on
@@ -213,13 +221,17 @@ function collect(node: Node, problems: string[]): void {
       return;
     case "look": {
       const atoms = node.node.kind === "alt" ? node.node.options : [node.node];
-      if (!atoms.every(isLookaheadAtom))
+      if (!atoms.every(isLookaheadAtom)) {
         problems.push("a lookahead may only hold single characters or the end of text");
+      }
       return;
     }
     case "repeat":
-      if (node.max === null) problems.push("repeat with no upper bound");
-      else if (node.max > MAX_REPEAT) problems.push(`repeat bound above ${String(MAX_REPEAT)}`);
+      if (node.max === null) {
+        problems.push("repeat with no upper bound");
+      } else if (node.max > MAX_REPEAT) {
+        problems.push(`repeat bound above ${String(MAX_REPEAT)}`);
+      }
       if ((node.max === null || node.max > 1) && isVariable(node.node)) {
         problems.push("a repeated part has a variable length inside");
       }
@@ -232,9 +244,12 @@ function collect(node: Node, problems: string[]): void {
 export function check(node: Node): CheckResult {
   const problems: string[] = [];
   collect(node, problems);
-  if (minLength(node) === 0) problems.push("the pattern can match empty text");
+  if (minLength(node) === 0) {
+    problems.push("the pattern can match empty text");
+  }
   const estimate = cost(node);
-  if (estimate > MAX_COST)
+  if (estimate > MAX_COST) {
     problems.push(`too much backtracking: cost ${String(estimate)} above ${String(MAX_COST)}`);
+  }
   return { problems, cost: estimate };
 }

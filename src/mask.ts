@@ -15,7 +15,9 @@ function isLowSurrogate(unit: number): boolean {
  */
 export function mask(value: string): string {
   const keep = value.length >= 16 ? 4 : value.length >= 10 ? 2 : 0;
-  if (keep === 0) return STARS;
+  if (keep === 0) {
+    return STARS;
+  }
   const headEnd = isHighSurrogate(value.charCodeAt(keep - 1)) ? keep - 1 : keep;
   const tailStart = isLowSurrogate(value.charCodeAt(value.length - keep))
     ? value.length - keep + 1

@@ -40,10 +40,14 @@ export function secretRange(
 ): readonly [number, number] | undefined {
   // Compiled patterns have the "d" flag; a match without indices has no range.
   const indices = match.indices ?? [];
-  if (group !== "first") return indices[group];
+  if (group !== "first") {
+    return indices[group];
+  }
   for (let index = 1; index < indices.length; index += 1) {
     const range = indices[index];
-    if (range !== undefined) return range;
+    if (range !== undefined) {
+      return range;
+    }
   }
   // No group took part: the whole match is the secret, as in gitleaks.
   return indices[0];
@@ -51,18 +55,29 @@ export function secretRange(
 
 function ruleMatches(text: string, rule: Rule): Candidate[] {
   const compiled = compiledRule(rule);
-  if (compiled === undefined)
+  if (compiled === undefined) {
     throw new TypeError(`rule ${JSON.stringify(rule.id)} was not made by defineRule`);
+  }
   const found: Candidate[] = [];
   for (const match of text.matchAll(compiled.pattern.regex)) {
     const range = secretRange(match, rule.secretGroup);
-    if (range === undefined) continue;
+    if (range === undefined) {
+      continue;
+    }
     const [start, end] = range;
-    if (start === end) continue;
+    if (start === end) {
+      continue;
+    }
     const secret = text.slice(start, end);
-    if (rule.minEntropy > 0 && entropy(secret) < rule.minEntropy) continue;
-    if (compiled.allow.some((allow) => secret.search(allow.regex) !== -1)) continue;
-    if (rule.validate !== undefined && !rule.validate(secret)) continue;
+    if (rule.minEntropy > 0 && entropy(secret) < rule.minEntropy) {
+      continue;
+    }
+    if (compiled.allow.some((allow) => secret.search(allow.regex) !== -1)) {
+      continue;
+    }
+    if (rule.validate !== undefined && !rule.validate(secret)) {
+      continue;
+    }
     found.push({
       ruleId: rule.id,
       vendor: rule.vendor,
@@ -82,7 +97,9 @@ function matcherMatches(text: string, matcher: CustomMatcher): Candidate[] {
   for (const { start, end } of matcher.find(text)) {
     const valid =
       Number.isInteger(start) && Number.isInteger(end) && start >= 0 && start < end && end <= text.length;
-    if (!valid) throw new RangeError(`custom matcher ${JSON.stringify(matcher.id)} returned a bad range`);
+    if (!valid) {
+      throw new RangeError(`custom matcher ${JSON.stringify(matcher.id)} returned a bad range`);
+    }
     const { id, vendor, label, severity } = matcher;
     found.push({ ruleId: id, vendor, label, severity, start, end, generic: false });
   }
@@ -95,10 +112,14 @@ function matcherMatches(text: string, matcher: CustomMatcher): Candidate[] {
  * The range itself is always the union of all candidates.
  */
 function better(a: Candidate, b: Candidate): Candidate {
-  if (a.generic !== b.generic) return a.generic ? b : a;
+  if (a.generic !== b.generic) {
+    return a.generic ? b : a;
+  }
   const widthA = a.end - a.start;
   const widthB = b.end - b.start;
-  if (widthA !== widthB) return widthA > widthB ? a : b;
+  if (widthA !== widthB) {
+    return widthA > widthB ? a : b;
+  }
   return a.ruleId <= b.ruleId ? a : b;
 }
 
@@ -108,7 +129,9 @@ function resolve(candidates: readonly Candidate[]): Finding[] {
   const result: Finding[] = [];
   let current: { start: number; end: number; best: Candidate } | undefined;
   const flush = (): void => {
-    if (current === undefined) return;
+    if (current === undefined) {
+      return;
+    }
     const { ruleId, vendor, label, severity } = current.best;
     result.push({ ruleId, vendor, label, severity, start: current.start, end: current.end });
   };
@@ -127,22 +150,31 @@ function resolve(candidates: readonly Candidate[]): Finding[] {
 
 /** Finds credentials in a text. Never throws for any string, and never puts a found value in an error. */
 export function scan(text: string, options: ScanOptions = {}): ScanResult {
-  if (typeof text !== "string") throw new TypeError("scan() needs a string");
+  if (typeof text !== "string") {
+    throw new TypeError("scan() needs a string");
+  }
   const maxFindings = options.maxFindings ?? DEFAULT_MAX_FINDINGS;
-  if (!Number.isInteger(maxFindings) || maxFindings < 1)
+  if (!Number.isInteger(maxFindings) || maxFindings < 1) {
     throw new RangeError("maxFindings must be a positive whole number");
+  }
   const lower = text.toLowerCase();
   const candidates: Candidate[] = [];
   for (const rule of options.rules ?? builtInRules) {
-    if (rule.keywords.length > 0 && !rule.keywords.some((keyword) => lower.includes(keyword))) continue;
+    if (rule.keywords.length > 0 && !rule.keywords.some((keyword) => lower.includes(keyword))) {
+      continue;
+    }
     candidates.push(...ruleMatches(text, rule));
   }
-  for (const matcher of options.matchers ?? []) candidates.push(...matcherMatches(text, matcher));
+  for (const matcher of options.matchers ?? []) {
+    candidates.push(...matcherMatches(text, matcher));
+  }
 
   const ignore = options.ignore;
   const kept = candidates.filter((candidate) => {
     const value = text.slice(candidate.start, candidate.end);
-    if (isPlaceholder(value)) return false;
+    if (isPlaceholder(value)) {
+      return false;
+    }
     return ignore === undefined || !ignore(value, withoutGeneric(candidate));
   });
   const findings = resolve(kept);

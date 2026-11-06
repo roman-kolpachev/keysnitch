@@ -24,7 +24,9 @@ interface Format {
 }
 
 function isFormat(value: unknown): value is Format {
-  if (typeof value !== "object" || value === null) return false;
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
   return ["id", "name", "source", "flags"].every((key) => typeof Reflect.get(value, key) === "string");
 }
 
@@ -73,7 +75,9 @@ function examples(format: Format): string[] {
   const out: string[] = [];
   for (let seed = 1; out.length < 5 && seed < 500; seed += 1) {
     const made = sample(tree, random(seed));
-    if (checker.exec(made)?.[0] === made && (real === undefined || real.test(made))) out.push(made);
+    if (checker.exec(made)?.[0] === made && (real === undefined || real.test(made))) {
+      out.push(made);
+    }
   }
   return out;
 }

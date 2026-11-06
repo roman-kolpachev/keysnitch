@@ -34,8 +34,9 @@ describe("the gitleaks floor", () => {
       assert.ok(reason.length > 20, `${id} needs a real reason`);
       const replacements = REPLACED_BY[id];
       assert.ok(replacements !== undefined, `${id} is skipped without a decision about its replacement`);
-      for (const replacement of replacements)
+      for (const replacement of replacements) {
         assert.ok(builtIn.has(replacement), `${id} should be covered by ${replacement}`);
+      }
     }
   });
 

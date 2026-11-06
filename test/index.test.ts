@@ -21,6 +21,8 @@ describe("public API", () => {
 
   it("exports frozen built-in rules", () => {
     assert.ok(Object.isFrozen(keysnitch.rules));
-    for (const rule of keysnitch.rules) assert.ok(Object.isFrozen(rule), rule.id);
+    for (const rule of keysnitch.rules) {
+      assert.ok(Object.isFrozen(rule), rule.id);
+    }
   });
 });
