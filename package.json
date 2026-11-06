@@ -43,7 +43,7 @@
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "lint": "eslint .",
+    "lint": "oxlint --type-aware --deny-warnings",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "node --test --test-concurrency=2 \"test/**/*.test.ts\"",
@@ -52,14 +52,13 @@
     "bench": "node bench/regex.ts",
     "docs:rules": "node tools/rules-doc.ts",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run coverage && npm run build && npm run check:consumer && npm pack --dry-run --ignore-scripts",
-    "check:consumer": "tsc -p test/consumer/tsconfig.node10.json && tsc -p test/consumer/tsconfig.nodenext.json"
+    "check:consumer": "tsc -p test/consumer/tsconfig.bundler.json && tsc -p test/consumer/tsconfig.nodenext.json"
   },
   "devDependencies": {
-    "@eslint/js": "10.0.1",
     "@types/node": "24.19.2",
-    "eslint": "10.13.0",
+    "oxlint": "1.89.0",
+    "oxlint-tsgolint": "7.0.2005",
     "prettier": "3.9.10",
-    "typescript": "6.0.3",
-    "typescript-eslint": "8.72.0"
+    "typescript": "7.0.2"
   }
 }

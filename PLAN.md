@@ -4,7 +4,8 @@
 
 - 2026-11-06, v0.1.0 (PR #3, merged): pattern parser, safety check and compiler; `scan`, `mask`, `findRules`, `vendors`, `defineRule`, custom matchers; 250 built-in rules (220 from gitleaks v8.30.1, 30 own); parity with the website checker; contract tests for every rule; repository checks. Private repository, not published.
 - 2026-11-06: Secret Sentinel runs on keysnitch (its PR #63, on development). Leak corpus of 1 Nov 2026: 1391 of 1400 (README, "How it compares").
-- 2026-11-06: dependabot PRs #1 (TypeScript 7) and #2 (@types/node 26) closed: typescript-eslint supports TypeScript below 6.1, and the Node types must match the oldest Node in `engines` (24). `.github/dependabot.yml` ignores both until that changes.
+- 2026-11-06: the rules that keep the code safe moved from ESLint into `test/repo.test.ts` (PR #6).
+- 2026-11-06: oxlint instead of ESLint, TypeScript 7.0.2 (docs/decisions.md, D-11). Dependabot PR #1 (TypeScript 7) is done by this; PR #2 (@types/node 26) is not taken: the Node types match the oldest Node in `engines` (24, also Forge's).
 
 ## Mutation testing
 

@@ -29,9 +29,9 @@ Where patterns cannot be checked (patterns typed by users), use RE2 through a cu
 
 ## D-3. No runtime dependencies, few dev dependencies, node:test
 
-A security tool should be easy to audit. keysnitch has no runtime dependencies (a test fails if one is added) and six dev dependencies: TypeScript, ESLint with typescript-eslint, Prettier and the Node types. Tests run on Node's own `node:test` with its coverage gate at 100 % of lines, branches and functions of `src/`. npm runs no install scripts (`.npmrc`).
+A security tool should be easy to audit. keysnitch has no runtime dependencies (a test fails if one is added) and five dev dependencies: TypeScript, oxlint with its type-aware part (oxlint-tsgolint), Prettier and the Node types (13 packages installed in all, D-11). Tests run on Node's own `node:test` with its coverage gate at 100 % of lines, branches and functions of `src/`. npm runs no install scripts (`.npmrc`).
 
-TypeScript is 6.0.3, not 7: typescript-eslint supports TypeScript up to 6.0 today. `@types/node` stays on 24, the oldest Node in `engines`, so the code cannot use an API that Node 24 lacks. Dependabot ignores both majors until that changes.
+`@types/node` stays on 24, the oldest Node in `engines` (and the Node of Atlassian Forge, where Secret Sentinel runs keysnitch), so the code cannot use an API that Node 24 lacks. Dependabot ignores its majors until that changes.
 
 ## D-4. gitleaks is the floor
 
@@ -62,3 +62,15 @@ No real-looking key is stored in the repository. Examples are built from parts, 
 ## D-10. MIT license
 
 Same as gitleaks and secretlint, whose patterns keysnitch adapts. The owner may change it before the repository goes public.
+
+## D-11. oxlint instead of ESLint, TypeScript 7
+
+On 6 Nov 2026 typescript-eslint supported TypeScript below 6.1 only, so the project could not move to TypeScript 7. oxlint's type-aware rules (oxlint-tsgolint) run on TypeScript 7 itself.
+
+What we checked before the switch:
+
+- **The rules.** Every rule of ESLint's recommended set and typescript-eslint's strict-type-checked set, plus our own, is in `.oxlintrc.json` by name, 126 in all. Three have no oxlint version and do not apply: `no-dupe-args` and `no-octal` are syntax errors in TypeScript modules, `no-unsafe-enum-assignment` needs enums, which `erasableSyntaxOnly` forbids. A planted violation of each important rule failed the lint: braces, floating promises, strict booleans, exhaustive switch, `any`, `as`, `!`, `@ts-ignore`, template values, `==`, `console`, unused variables, needless conditions, unsafe member access.
+- **The supply chain.** ESLint with typescript-eslint installed 99 packages; oxlint, oxlint-tsgolint and TypeScript 7 come as one package each plus a native binary for the platform, 13 packages in all with Prettier and the Node types. oxlint and oxlint-tsgolint are published with npm provenance (built on GitHub from github.com/oxc-project). Nothing runs at install (`.npmrc`).
+- **What stays independent of the linter.** The rules that keep the code safe (no RegExp outside the compiler, no `any`, `as`, `!` or comments that turn checks off) are repository tests, so a linter bug or a missing rule cannot let them through.
+
+The cost: oxlint's type-aware part is younger than typescript-eslint. A native binary is harder to read than JavaScript; provenance ties it to its source build. Also, TypeScript 7 no longer knows `moduleResolution: node10`, so the consumer check now covers `bundler` and `nodenext`; the package keeps the top-level `types` field for older setups.

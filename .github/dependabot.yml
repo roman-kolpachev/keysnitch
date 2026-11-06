@@ -11,9 +11,6 @@ updates:
       # could use an API that is missing there.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
-      # typescript-eslint supports TypeScript below 6.1 for now.
-      - dependency-name: typescript
-        versions: [">=6.1.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
