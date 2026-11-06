@@ -19,7 +19,7 @@
 //   nothing is kept between calls.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { defineRule } from "../src/rule.ts";
+import { defineRule, RuleError } from "../src/rule.ts";
 import { scan, secretRange, type Finding } from "../src/scan.ts";
 
 const body = "q7Lm2Xp9Rt4Vz8Kc"; // 16 mixed characters, built here, not a real key
@@ -137,7 +137,36 @@ describe("basic findings", () => {
 
 describe("rules and groups", () => {
   it("refuses a rule that was not made by defineRule", () => {
-    assert.throws(() => scan(`dmo_${body}`, { rules: [{ ...demo }] }), TypeError);
+    assert.throws(() => scan(`dmo_${body}`, { rules: [{ ...demo }] }), {
+      name: "TypeError",
+      message: 'rule "demo-token" was not made by defineRule',
+    });
+  });
+
+  it("keeps a secret whose entropy equals the rule's minimum", () => {
+    // "ab" repeated has exactly 1 bit per character.
+    const rule = defineRule({
+      ...demo,
+      id: "edge",
+      pattern: "dmo_([ab]{16})",
+      secretGroup: 1,
+      minEntropy: 1,
+    });
+    assert.deepEqual(find(`dmo_${"ab".repeat(8)}`, [rule]), ["ab".repeat(8)]);
+  });
+
+  it("names a joined range by the wider of two specific rules, in any order", () => {
+    const wide = defineRule({ ...demo, id: "wide-specific", keywords: [], pattern: "k[0-9]{6}" });
+    const narrow = defineRule({ ...demo, id: "narrow-specific", keywords: [], pattern: "[0-9]{4}z" });
+    const text = "k123456z";
+    for (const rules of [
+      [wide, narrow],
+      [narrow, wide],
+    ]) {
+      const findings = scan(text, { rules }).findings;
+      assert.deepEqual(values(text, findings), ["k123456z"]);
+      assert.equal(findings[0]?.ruleId, "wide-specific");
+    }
   });
 
   it("skips a match whose secret group did not take part", () => {
@@ -207,7 +236,7 @@ describe("empty and tiny input", () => {
   it("refuses a value that is not a string, without echoing it", () => {
     assert.throws(
       () => Reflect.apply(scan, undefined, [Symbol("secret-value")]),
-      (error: unknown) => error instanceof TypeError && !error.message.includes("secret-value"),
+      (error: unknown) => error instanceof TypeError && error.message === "scan() needs a string",
     );
   });
 });
@@ -398,8 +427,12 @@ describe("limits", () => {
 
   it("refuses a maxFindings that is not a positive whole number", () => {
     for (const maxFindings of [0, -1, 1.5, Number.NaN]) {
-      assert.throws(() => scan("x", { rules: [demo], maxFindings }), RangeError);
+      assert.throws(() => scan("x", { rules: [demo], maxFindings }), {
+        name: "RangeError",
+        message: "maxFindings must be a positive whole number",
+      });
     }
+    assert.equal(scan(`dmo_${body}`, { rules: [demo], maxFindings: 1 }).findings.length, 1);
   });
 
   it("finds a key at the end of a 5 MB text quickly", () => {
@@ -434,6 +467,29 @@ describe("custom matchers", () => {
     const result = scan(text, { rules: [], matchers: [matcher] });
     assert.deepEqual(values(text, result.findings), ["acme:1234"]);
     assert.equal(result.findings[0]?.ruleId, "custom-thing");
+  });
+
+  it("takes a finding at the very start of the text", () => {
+    assert.deepEqual(values("acme:1234", scan("acme:1234", { rules: [], matchers: [matcher] }).findings), [
+      "acme:1234",
+    ]);
+  });
+
+  it("names a joined range by a custom matcher over a generic rule", () => {
+    const setting = defineRule({ ...assigned, id: "setting", pattern: "(?i)secret=([^\\s]{8,40})" });
+    const text = "secret=acme:1234xyz";
+    const findings = scan(text, {
+      rules: [setting],
+      matchers: [{ ...matcher, find: () => [{ start: 7, end: 16 }] }],
+    }).findings;
+    assert.equal(findings[0]?.ruleId, "custom-thing");
+  });
+
+  it("checks a custom matcher's facts like a rule's", () => {
+    assert.throws(
+      () => scan("acme:1234", { rules: [], matchers: [{ ...matcher, id: "Not Kebab" }] }),
+      RuleError,
+    );
   });
 
   it("refuses a custom matcher that returns a bad range, without the text", () => {

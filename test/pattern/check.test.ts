@@ -94,6 +94,17 @@ describe("lookahead", () => {
     assert.deepEqual(problems("a(?=b|c)"), []);
   });
 
+  it("refuses a lookahead where only some options are single characters", () => {
+    assert.ok(problems("a(?=b|cd)").some((p) => p.includes("lookahead")));
+    assert.ok(problems("a(?=b|^)").some((p) => p.includes("lookahead")));
+  });
+
+  it("checks inside groups and repeats, not only at the top", () => {
+    assert.ok(problems("x(?:a(?=bc))").some((p) => p.includes("lookahead")));
+    assert.ok(problems("x(?:a(?=bc)){2}").some((p) => p.includes("lookahead")));
+    assert.ok(problems("x(?:a+)").some((p) => p.includes("no upper bound")));
+  });
+
   it("refuses anything longer or repeated inside a lookahead", () => {
     for (const pattern of ["a(?=bc)", "a(?![a-z]{2})", "a(?=(?:b))", "a(?=\\bb)", "a(?=^)"]) {
       assert.ok(

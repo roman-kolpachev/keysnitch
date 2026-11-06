@@ -4,6 +4,12 @@
 
 - 2026-11-06, v0.1.0 (branch `feat/v0.1.0`): pattern parser, safety check and compiler; `scan`, `mask`, `findRules`, `vendors`, `defineRule`, custom matchers; 250 built-in rules (220 from gitleaks v8.30.1, 30 own); parity with the website checker; contract tests for every rule; repository checks. Private repository, not published.
 
+## Mutation testing
+
+Stryker 10.1.1 through npx (not a dependency), command runner with node:test, 2026-11-06, on `src/pattern/*`, `scan.ts`, `rule.ts`, `mask.ts`, `search.ts`, `entropy.ts`, `placeholder.ts` and the helpers of `src/rules/keysnitch.ts`: 1789 mutants, score **90.2 %** (1599 killed, 14 timed out, 176 survived). A survivor checked by hand (the digit test in `isKebabCase`) is killed by the tests, so the command runner misses some kills; the score is a lower bound. Survivors that showed real gaps got tests the same night (lookahead with mixed options, the entropy boundary, a custom matcher at offset 0 and with bad facts, naming by the wider specific rule, `maxFindings: 1`, error texts); each was checked by hand to fail without the code. Survivors left are equivalent (a `<=` on a loop end that only reads `undefined`, the sort order of equal starts that the union makes irrelevant, `minEntropy >= 0` where entropy is never negative) or messages of `RuleError`.
+
+Config used: `testRunner: command`, `coverageAnalysis: off`, `concurrency: 2`, `tsconfigFile` pointed at a missing file (Stryker's tsconfig rewrite needs its own TypeScript). Run it again before 1.0.
+
 ## Next
 
 1. Secret Sentinel uses keysnitch instead of secretlint (in the Secret Sentinel repository).
