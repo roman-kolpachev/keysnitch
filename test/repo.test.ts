@@ -98,6 +98,15 @@ describe("dependencies", () => {
   it("publishes only the build and the documents", () => {
     assert.deepEqual(packageJson["files"], ["dist", "LICENSE", "NOTICE.md", "README.md", "CHANGELOG.md"]);
   });
+
+  it("links the project page as its home page, and the repository and issues on GitHub", () => {
+    assert.equal(packageJson["homepage"], "https://simplify-software.org/keysnitch");
+    assert.equal(packageJson["bugs"], "https://github.com/roman-kolpachev/keysnitch/issues");
+    assert.deepEqual(packageJson["repository"], {
+      type: "git",
+      url: "git+https://github.com/roman-kolpachev/keysnitch.git",
+    });
+  });
 });
 
 describe("GitHub workflows", () => {

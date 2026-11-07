@@ -1,6 +1,6 @@
 {
   "name": "keysnitch",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Find leaked API keys, tokens and passwords in any text. Zero dependencies, linear time rules, safe to run on untrusted input.",
   "keywords": [
     "secrets",
@@ -19,7 +19,7 @@
     "url": "git+https://github.com/roman-kolpachev/keysnitch.git"
   },
   "bugs": "https://github.com/roman-kolpachev/keysnitch/issues",
-  "homepage": "https://github.com/roman-kolpachev/keysnitch#readme",
+  "homepage": "https://simplify-software.org/keysnitch",
   "type": "module",
   "imports": {
     "#src/*": "./src/*"
