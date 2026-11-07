@@ -87,3 +87,13 @@ Every workflow still starts with `permissions: contents: read`, and `test/repo.t
 Fuzzing is property-based testing with fast-check (`test/property.test.ts`), which Scorecard counts for TypeScript and which needs no write access.
 
 The cost: two places where a token can write, each limited to one job and one kind of write. The npm package itself keeps its provenance from the `publish` job, unchanged.
+
+## D-13. A weekly pull request for each new gitleaks release
+
+gitleaks is the floor (D-4), so a new gitleaks release can bring rules keysnitch must have. Dependabot cannot follow a config file copied from another repository, so `.github/workflows/gitleaks-update.yml` does it once a week: it takes the newest gitleaks release at least 14 days old (the cooldown Dependabot uses here), and when it is newer than `third_party/gitleaks/VERSION` it takes its config, rebuilds the rules, runs `npm run check` and opens a pull request that lists added, removed and failing rules. The logic is in `tools/gitleaks/update.ts`, with tests.
+
+A person reviews and merges: a new rule can fail the safety check or change what is found, and then needs an entry in `tools/gitleaks/overrides.ts` first. One pull request per version, never a second one for the same tag.
+
+The cost: a third job that can write, `contents: write`, `pull-requests: write` and `actions: write`, to push its branch, open the pull request and start CI and CodeQL on that branch; listed in `test/repo.test.ts` like the others. GitHub does not run workflows on pull requests its own token opens, but it does run a workflow started by hand (`workflow_dispatch`), and the checks land on the branch's commit, where the pull request and the branch rules see them. A GitHub App token would start CI too, but it needs a long-lived private key in the repository secrets: one more thing that can leak, so not here.
+
+What comes from the network is checked before it is written: the tag must be `vX.Y.Z` (it goes into `$GITHUB_OUTPUT`, where a line break would add outputs), the config must be under 1 MB and hold gitleaks rules. The rebuild runs code generated from that config, so the token reaches only the steps that talk to GitHub, and checkout keeps no credentials in `.git/config`; the push step sets them up with `gh auth setup-git`.

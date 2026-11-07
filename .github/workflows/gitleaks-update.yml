@@ -1,0 +1,72 @@
+name: gitleaks update
+
+# Once a week: when gitleaks has a release at least 14 days old that is newer
+# than third_party/gitleaks/VERSION, take its config, rebuild the rules, run
+# the full check and open a pull request with what changed. A person reviews
+# and merges it; a rule that fails the safety check needs an override first.
+# Only this job may push a branch, open a pull request and start the CI and
+# CodeQL workflows on that branch (docs/decisions.md, D-13). GitHub runs no
+# workflow on a pull request opened with the job's own token, but it does run
+# a workflow started by hand, so the job starts them itself: no extra secret.
+
+on:
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    # The token reaches only the steps that talk to GitHub. The rebuild runs
+    # code generated from the downloaded config: no token in its environment,
+    # none kept in .git/config by checkout.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts
+      - id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/gitleaks/update.ts fetch
+      - id: rebuild
+        if: steps.release.outputs.tag != ''
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          node tools/gitleaks/import.ts --report > import-report.txt
+          node tools/gitleaks/import.ts || true
+          node tools/rules-doc.ts
+          npm run format
+          if npm run check; then CHECK=pass; else CHECK=fail; fi
+          node tools/gitleaks/update.ts summary "$TAG" "$CHECK" > pr-body.md
+      - if: steps.release.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          BRANCH="gitleaks/$TAG"
+          if [ "$(gh pr list --head "$BRANCH" --state all --json number --jq length)" != "0" ]; then
+            echo "a pull request for $TAG exists already"
+            exit 0
+          fi
+          gh auth setup-git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add third_party/gitleaks src/rules/gitleaks.ts docs/rules.md
+          git commit -m "chore(rules): gitleaks $TAG"
+          git push origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" --title "chore(rules): gitleaks $TAG" --body-file pr-body.md
+          gh workflow run ci.yml --ref "$BRANCH"
+          gh workflow run codeql.yml --ref "$BRANCH"

@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Started by the gitleaks update job on its branch (D-13).
+  workflow_dispatch:
 
 permissions:
   contents: read
