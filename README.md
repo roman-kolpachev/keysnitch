@@ -3,6 +3,7 @@
 [![npm](https://img.shields.io/npm/v/keysnitch)](https://www.npmjs.com/package/keysnitch)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Dependencies: 0](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16418/badge)](https://www.bestpractices.dev/projects/16418)
 
 Find leaked API keys, tokens and passwords in any text.
 
