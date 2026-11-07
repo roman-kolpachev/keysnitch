@@ -4,6 +4,10 @@ All notable changes to this project are written here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Changed
+
+- The npm home page link points to https://simplify-software.org/keysnitch. The repository and issues stay on GitHub.
+
 ## [0.1.3] - 2026-11-07
 
 ### Fixed

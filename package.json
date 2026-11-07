@@ -19,7 +19,7 @@
     "url": "git+https://github.com/roman-kolpachev/keysnitch.git"
   },
   "bugs": "https://github.com/roman-kolpachev/keysnitch/issues",
-  "homepage": "https://github.com/roman-kolpachev/keysnitch#readme",
+  "homepage": "https://simplify-software.org/keysnitch",
   "type": "module",
   "imports": {
     "#src/*": "./src/*"
