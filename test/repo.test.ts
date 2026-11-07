@@ -114,12 +114,57 @@ describe("GitHub workflows", () => {
     .filter((path) => path.replaceAll("\\", "/").includes("workflows/"))
     .map((path) => ({ path, text: read(path) }));
 
-  it("has the CI, the CodeQL and the release workflow", () => {
+  it("has the CI, the CodeQL, the gitleaks update and the release workflow", () => {
     assert.deepEqual(workflows.map(({ path }) => path.replaceAll("\\", "/")).sort(), [
       ".github/workflows/ci.yml",
       ".github/workflows/codeql.yml",
+      ".github/workflows/gitleaks-update.yml",
       ".github/workflows/release.yml",
     ]);
+  });
+
+  it("opens one pull request per new gitleaks release, with the rules rebuilt and checked", () => {
+    const update = workflows.find(({ path }) => path.endsWith("gitleaks-update.yml"));
+    assert.ok(update !== undefined);
+    assert.match(update.text, /schedule:/u);
+    assert.match(update.text, /node tools\/gitleaks\/update\.ts fetch/u);
+    assert.match(update.text, /node tools\/gitleaks\/import\.ts/u);
+    assert.match(update.text, /npm run check/u);
+    // An open or closed pull request for the same version is never opened again.
+    assert.match(update.text, /gh pr list --head "\$BRANCH" --state all/u);
+    assert.match(update.text, /gh pr create/u);
+  });
+
+  it("starts CI and CodeQL on the update branch itself, without an extra secret", () => {
+    // GitHub runs no workflow on events of the job's own token, except a
+    // manual start (workflow_dispatch); the checks land on the branch's commit.
+    const update = workflows.find(({ path }) => path.endsWith("gitleaks-update.yml"));
+    assert.ok(update !== undefined);
+    assert.match(update.text, /gh workflow run ci\.yml --ref "\$BRANCH"/u);
+    assert.match(update.text, /gh workflow run codeql\.yml --ref "\$BRANCH"/u);
+    assert.doesNotMatch(update.text, /secrets\./u);
+    for (const name of ["ci.yml", "codeql.yml"]) {
+      const workflow = workflows.find(({ path }) => path.endsWith(name));
+      assert.ok(workflow !== undefined);
+      assert.match(workflow.text, /^ {2}workflow_dispatch:$/mu, name);
+    }
+  });
+
+  it("keeps the token away from code built from the downloaded config", () => {
+    // npm run check and the summary run code generated from gitleaks.toml:
+    // no token in their environment, none left in .git/config by checkout.
+    const update = workflows.find(({ path }) => path.endsWith("gitleaks-update.yml"));
+    assert.ok(update !== undefined);
+    assert.doesNotMatch(update.text, /^ {4}env:\n {6}GH_TOKEN/mu);
+    const steps = update.text.split(/\n {6}- /u);
+    for (const step of steps.filter((s) => /npm run check|update\.ts summary|import\.ts/u.test(s))) {
+      assert.doesNotMatch(step, /GH_TOKEN/u, step);
+    }
+    for (const { path, text } of workflows) {
+      const checkouts = text.split("actions/checkout@").length - 1;
+      const kept = text.split("persist-credentials: false").length - 1;
+      assert.equal(kept, checkouts, `${path}: every checkout drops its credentials`);
+    }
   });
 
   it("pins every action to a full commit hash", () => {
@@ -142,6 +187,7 @@ describe("GitHub workflows", () => {
     "ci.yml": [],
     "codeql.yml": ["security-events: write"],
     "release.yml": ["id-token: write", "contents: write", "attestations: write"],
+    "gitleaks-update.yml": ["contents: write", "pull-requests: write", "actions: write"],
   };
 
   it("reads by default, and writes only where a job needs it", () => {
