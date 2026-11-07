@@ -4,6 +4,8 @@ All notable changes to this project are written here. The format follows [Keep a
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-11-07
+
 ### Changed
 
 - The npm home page link points to https://simplify-software.org/keysnitch. The repository and issues stay on GitHub.
@@ -40,7 +42,8 @@ First version.
 - `findRules()` and `vendors()` to find rules by company, name or alias.
 - `mask()` to show a value safely.
 
-[Unreleased]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/roman-kolpachev/keysnitch/compare/v0.1.0...v0.1.1
