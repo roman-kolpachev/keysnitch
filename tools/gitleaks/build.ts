@@ -22,7 +22,22 @@ function allowOf(rule: GitleaksRule): string[] {
   // generic rule that keysnitch replaces with its own.
   return rule.allowlists
     .filter((list) => list.regexTarget === undefined || list.regexTarget === "secret")
-    .flatMap((list) => list.regexes.map((regex) => boundRepeats(regex)));
+    .flatMap((list) => list.regexes.map((regex) => unshape(boundRepeats(regex))));
+}
+
+/**
+ * gitleaks allows some public sample keys by listing them whole (Google API
+ * keys from documentation). Written out as they are, they make every secret
+ * scanner, GitHub's included, report keysnitch's own rule file and package.
+ * A plain value of 20 characters or more gets its third character written as
+ * an escape: the pattern matches the same text, the source holds no key.
+ */
+function unshape(pattern: string): string {
+  if (!/^[A-Za-z0-9_-]{20,}$/u.test(pattern)) {
+    return pattern;
+  }
+  const hex = pattern.charCodeAt(2).toString(16).padStart(2, "0");
+  return `${pattern.slice(0, 2)}\\x{${hex}}${pattern.slice(3)}`;
 }
 
 function convert(rule: GitleaksRule): RuleSpec | string {

@@ -9,6 +9,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rules } from "#src/rules/index.ts";
+import { defineRule } from "#src/rule.ts";
+import { scan } from "#src/scan.ts";
 import { GITLEAKS_VERSION, gitleaksRules, gitleaksSkipped } from "#src/rules/gitleaks.ts";
 import { buildGitleaksRules } from "../../tools/gitleaks/build.ts";
 
@@ -45,5 +47,36 @@ describe("the gitleaks floor", () => {
     assert.equal(GITLEAKS_VERSION, build.version);
     assert.deepEqual(gitleaksRules, build.specs);
     assert.deepEqual(gitleaksSkipped, build.skipped);
+  });
+});
+
+// Scenario: gitleaks allows some public sample keys by listing them whole
+// (Google API keys from documentation). keysnitch keeps them allowed, but
+// no rule file and no built file may hold a value that any scanner, GitHub's
+// secret scanning included, reports as a leaked key.
+describe("allow lists", () => {
+  it("hold no value that a built-in rule would report, once the allow lists are left out", () => {
+    const bare = rules.map((rule) => defineRule({ ...rule, allow: [] }));
+    const keyShaped = rules.flatMap((rule) =>
+      rule.allow
+        .filter((entry) => scan(entry, { rules: bare }).findings.length > 0)
+        .map((entry) => `${rule.id}: ${entry.slice(0, 8)}...`),
+    );
+    assert.deepEqual(keyShaped, []);
+  });
+
+  it("still keep a documented sample key from being reported", () => {
+    const gcp = rules.find((rule) => rule.id === "gcp-api-key");
+    assert.ok(gcp !== undefined && gcp.allow.length > 0);
+    // The first allowed sample, written out from its pattern, is not reported.
+    const sample =
+      gcp.allow[0]?.replace(/\\x\{([0-9a-f]{2})\}/gu, (_, hex: string) =>
+        String.fromCharCode(Number.parseInt(hex, 16)),
+      ) ?? "";
+    assert.ok(sample.length >= 39);
+    assert.deepEqual(
+      scan(`key = "${sample}"`).findings.filter((f) => f.ruleId === "gcp-api-key"),
+      [],
+    );
   });
 });
