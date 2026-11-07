@@ -8,6 +8,7 @@
 - 2026-11-06: Sourcegraph rule no longer takes git commit hashes for tokens (PR #9, found by scanning the repository's own history).
 - 2026-11-06: ready to publish: CI on Node 24 and 26, a release workflow with npm provenance, badges, changelog links, workflow tests (actions pinned to commit hashes, read-only tokens).
 - 2026-11-06: oxlint instead of ESLint, TypeScript 7.0.2 (docs/decisions.md, D-11). Dependabot PR #1 (TypeScript 7) is done by this; PR #2 (@types/node 26) is not taken: the Node types match the oldest Node in `engines` (24, also Forge's).
+- 2026-11-07: allow lists hold no whole key (0.1.3). GitHub secret scanning opened 16 alerts on the 16 public sample Google API keys of gitleaks' gcp-api-key allowlist, in third_party/gitleaks/gitleaks.toml and in src/rules/gitleaks.ts (so in the package too). The generator writes the third character of a plain allow value as an escape; a test checks no allow value is key-shaped. .github/secret_scanning.yml ignores the vendored gitleaks config.
 - 2026-11-06: ranges cover the whole secret and nothing else: `jwt-base64` stops at the end of its line (wrapped tokens line by line), setting rules cover long values whole or not at all (were cut at 200 characters). Found while checking the Secret Sentinel guide on simplify-software.org.
 
 ## Mutation testing
