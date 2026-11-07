@@ -105,9 +105,10 @@ describe("GitHub workflows", () => {
     .filter((path) => path.replaceAll("\\", "/").includes("workflows/"))
     .map((path) => ({ path, text: read(path) }));
 
-  it("has the CI and the release workflow", () => {
+  it("has the CI, the CodeQL and the release workflow", () => {
     assert.deepEqual(workflows.map(({ path }) => path.replaceAll("\\", "/")).sort(), [
       ".github/workflows/ci.yml",
+      ".github/workflows/codeql.yml",
       ".github/workflows/release.yml",
     ]);
   });
@@ -115,20 +116,57 @@ describe("GitHub workflows", () => {
   it("pins every action to a full commit hash", () => {
     for (const { path, text } of workflows) {
       for (const [, action] of text.matchAll(/^\s*-?\s*uses:\s*(\S+)/gmu)) {
-        assert.match(String(action), /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/u, `${path}: ${String(action)}`);
+        // owner/repo, or owner/repo/path for actions kept in a folder (github/codeql-action/init).
+        assert.match(
+          String(action),
+          /^[\w.-]+\/[\w.-]+(?:\/[\w.-]+)*@[0-9a-f]{40}$/u,
+          `${path}: ${String(action)}`,
+        );
       }
     }
   });
 
-  it("gives the token read access only, and id-token only to publishing", () => {
+  // Write access only where a job cannot work without it (docs/decisions.md,
+  // D-12): CodeQL writes its findings; the release job that signs the
+  // published tarball attaches it and its signature to the GitHub release.
+  const ALLOWED_WRITES: Readonly<Record<string, readonly string[]>> = {
+    "ci.yml": [],
+    "codeql.yml": ["security-events: write"],
+    "release.yml": ["id-token: write", "contents: write", "attestations: write"],
+  };
+
+  it("reads by default, and writes only where a job needs it", () => {
     for (const { path, text } of workflows) {
       assert.match(text, /^permissions:\n {2}contents: read$/mu, path);
-      assert.ok(!/write/u.test(text.replace(/id-token: write/gu, "")), `${path} asks for write access`);
+      const name = path.replaceAll("\\", "/").split("/").pop() ?? "";
+      let rest = text;
+      for (const write of ALLOWED_WRITES[name] ?? []) {
+        rest = rest.replaceAll(write, "");
+      }
+      assert.ok(!/write/u.test(rest), `${path} asks for write access it does not need`);
     }
     const release = workflows.find(({ path }) => path.endsWith("release.yml"));
     assert.ok(release !== undefined);
     assert.match(release.text, /npm publish --provenance --access public --ignore-scripts/u);
     assert.match(release.text, /npm run check/u);
+  });
+
+  it("signs the tarball users install and attaches it to the GitHub release", () => {
+    const release = workflows.find(({ path }) => path.endsWith("release.yml"));
+    assert.ok(release !== undefined);
+    // Fetched back from npm, so the signature is for the exact bytes users install.
+    assert.match(release.text, /npm pack "keysnitch@\$VERSION"/u);
+    assert.match(release.text, /actions\/attest-build-provenance@[0-9a-f]{40}/u);
+    assert.match(release.text, /\.sigstore\.json/u);
+    assert.match(release.text, /gh release upload/u);
+  });
+
+  it("passes expressions to scripts through env, never inside a run line", () => {
+    for (const { path, text } of workflows) {
+      for (const line of text.split("\n").filter((l) => l.includes("${{"))) {
+        assert.match(line, /^\s+[\w-]+: \$\{\{[^}]*\}\}$/u, `${path}: ${line.trim()}`);
+      }
+    }
   });
 });
 

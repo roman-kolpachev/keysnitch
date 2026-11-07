@@ -29,3 +29,43 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm publish --provenance --access public --ignore-scripts
+
+  # Attaches the published tarball and a Sigstore signature of it to the
+  # GitHub release, so the release itself can be verified (docs/decisions.md,
+  # D-12). The tarball is fetched back from npm: the signature is for the
+  # exact bytes users install. Only this job may change the release.
+  sign:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+      REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Fetch the published tarball
+        run: |
+          VERSION="${TAG#v}"
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            npm pack "keysnitch@$VERSION" --ignore-scripts && break
+            sleep 30
+          done
+          test -f "keysnitch-$VERSION.tgz"
+      - id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: keysnitch-*.tgz
+      - name: Attach the tarball and its signature to the release
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          VERSION="${TAG#v}"
+          cp "$BUNDLE" "keysnitch-$VERSION.tgz.sigstore.json"
+          gh release upload "$TAG" "keysnitch-$VERSION.tgz" "keysnitch-$VERSION.tgz.sigstore.json" --repo "$REPO" --clobber
