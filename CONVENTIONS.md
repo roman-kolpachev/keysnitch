@@ -8,7 +8,7 @@ Only rules a tool cannot check live here. Everything else is in `tsconfig.json`,
 - Assert behaviour: what `scan()` returns for a text. Not which helper was called.
 - Test values are built from parts (`chars()` in the rule tests, `sample()` from a pattern). Never paste a real key, not even a revoked one.
 - Every edge case gets a test: empty text, one character, the end of the text, line endings, Unicode spaces, zero-width characters, emoji before a key, quotes and brackets around it, a key glued to more characters.
-- Slow input is a test too: build it from the rule's own pieces and give it a time budget.
+- Slow input is a test too: build it from the rule's own pieces and give it a time budget. Over the budget, its time must grow in step with the text (`test/support/linear.ts`).
 
 ## Code
 

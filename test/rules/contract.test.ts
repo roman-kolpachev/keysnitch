@@ -9,20 +9,17 @@
 //   after it (a redaction must not break the text around the key);
 // - slow input made from its own pieces (a cut example repeated, long runs
 //   of each character it accepts, its keywords repeated) scans in linear
-//   time, inside a budget; an input over it gets more tries and its best time
-//   counts, as a busy machine slows one run, a slow rule slows all of them;
+//   time: inside a budget, or over it on a slow machine while twice the text
+//   takes about twice the time (test/support/linear.ts);
 // - documentation placeholders for its value are not reported.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { rules } from "#src/rules/index.ts";
 import { compiledRule } from "#src/rule.ts";
 import { scan } from "#src/scan.ts";
+import { slowness } from "../support/linear.ts";
 import { characters, random, sample } from "../support/sample.ts";
 import type { Rule } from "#src/types.ts";
-
-const SLOW_INPUT = 100_000;
-const BUDGET_MS = 400;
-const TRIES = 5;
 
 function tree(rule: Rule) {
   const compiled = compiledRule(rule);
@@ -125,21 +122,20 @@ describe("every built-in rule scans slow input in linear time", () => {
         ...pieces,
         ...rule.keywords.map((keyword) => `${keyword} `),
         ...rule.keywords.map((keyword) => `${keyword}=`),
-      ].map(
-        (piece) =>
-          `${rule.keywords[0] ?? ""} ${piece.repeat(Math.ceil(SLOW_INPUT / Math.max(1, piece.length)))}`,
-      );
-      let slowest = 0;
-      for (const input of inputs) {
-        let best = Infinity;
-        for (let run = 0; run < TRIES && best >= BUDGET_MS; run += 1) {
+      ];
+      for (const piece of inputs) {
+        const problem = slowness((size) => {
+          const input = `${rule.keywords[0] ?? ""} ${piece.repeat(Math.ceil(size / Math.max(1, piece.length)))}`;
           const started = performance.now();
           scan(input, { rules: [rule] });
-          best = Math.min(best, performance.now() - started);
-        }
-        slowest = Math.max(slowest, best);
+          return performance.now() - started;
+        });
+        assert.equal(
+          problem,
+          undefined,
+          `${JSON.stringify(piece.slice(0, 5))}, repeated, ${String(problem)}`,
+        );
       }
-      assert.ok(slowest < BUDGET_MS, `slowest input took ${slowest.toFixed(0)} ms for 100 KB`);
     });
   }
 });
