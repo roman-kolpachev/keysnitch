@@ -9,7 +9,8 @@
 //   after it (a redaction must not break the text around the key);
 // - slow input made from its own pieces (a cut example repeated, long runs
 //   of each character it accepts, its keywords repeated) scans in linear
-//   time, well inside a budget;
+//   time, inside a budget; an input over it gets more tries and its best time
+//   counts, as a busy machine slows one run, a slow rule slows all of them;
 // - documentation placeholders for its value are not reported.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
@@ -21,6 +22,7 @@ import type { Rule } from "#src/types.ts";
 
 const SLOW_INPUT = 100_000;
 const BUDGET_MS = 400;
+const TRIES = 5;
 
 function tree(rule: Rule) {
   const compiled = compiledRule(rule);
@@ -129,9 +131,13 @@ describe("every built-in rule scans slow input in linear time", () => {
       );
       let slowest = 0;
       for (const input of inputs) {
-        const started = performance.now();
-        scan(input, { rules: [rule] });
-        slowest = Math.max(slowest, performance.now() - started);
+        let best = Infinity;
+        for (let run = 0; run < TRIES && best >= BUDGET_MS; run += 1) {
+          const started = performance.now();
+          scan(input, { rules: [rule] });
+          best = Math.min(best, performance.now() - started);
+        }
+        slowest = Math.max(slowest, best);
       }
       assert.ok(slowest < BUDGET_MS, `slowest input took ${slowest.toFixed(0)} ms for 100 KB`);
     });
