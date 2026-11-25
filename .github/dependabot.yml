@@ -17,3 +17,9 @@ updates:
       interval: weekly
     cooldown:
       default-days: 14
+    groups:
+      # The steps only work on one version: updated alone, each pull request
+      # fails its CodeQL check.
+      codeql-action:
+        patterns:
+          - "github/codeql-action/*"
