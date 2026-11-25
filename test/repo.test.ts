@@ -180,6 +180,20 @@ describe("GitHub workflows", () => {
     }
   });
 
+  it("updates the codeql-action steps together, as they only work on one version", () => {
+    const codeql = workflows.find(({ path }) => path.endsWith("codeql.yml"));
+    assert.ok(codeql !== undefined);
+    const uses = [...codeql.text.matchAll(/github\/codeql-action\/([\w-]+)@([0-9a-f]{40})/gu)];
+    assert.deepEqual(
+      uses.map(([, step]) => step),
+      ["init", "analyze"],
+    );
+    assert.equal(new Set(uses.map(([, , commit]) => commit)).size, 1, "one commit for all steps");
+    // Dependabot opens a pull request per step unless they are grouped, and each one fails alone.
+    const [, actions = ""] = read(".github/dependabot.yml").split("package-ecosystem: github-actions");
+    assert.match(actions, /^ {4}groups:\n(?: {6}.*\n)* {10}- "?github\/codeql-action\/\*"?$/mu);
+  });
+
   // Write access only where a job cannot work without it (docs/decisions.md,
   // D-12): CodeQL writes its findings; the release job that signs the
   // published tarball attaches it and its signature to the GitHub release.
